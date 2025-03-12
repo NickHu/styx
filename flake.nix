@@ -9,11 +9,7 @@
   };
 
   outputs = { self, utils, nixpkgs, ... }: 
-    # utils.lib.eachDefaultSystem (system:
-    utils.lib.eachSystem [
-      "x86_64-linux" "i686-linux""aarch64-linux"
-      # "x86_64-darwin" "aarch64-darwin"
-    ](system:
+    utils.lib.eachDefaultSystem (system:
       let
         pkgs = (import nixpkgs { inherit system; }).extend (_: _: { inherit styx; });
         styx = pkgs.callPackage ./derivation.nix { };
