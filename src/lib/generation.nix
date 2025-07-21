@@ -173,7 +173,7 @@ rec {
             if [ -d "$file" ]; then continue; fi
 
             # output path
-            path=$(realpath --relative-to="${filesDir}" "$file")
+            path=''${file#"${filesDir}/"}
             mkdir -p $(dirname $out/$path)
 
             if [ $(text_file $file) ]; then
