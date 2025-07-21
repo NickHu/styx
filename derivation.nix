@@ -1,6 +1,6 @@
 { lib, stdenv, asciidoctor
 , caddy
-, linkchecker
+, lychee
 , callPackage
 , pkgs }:
 
@@ -14,7 +14,7 @@ stdenv.mkDerivation rec {
   src = lib.cleanSource ./.;
 
   server = lib.getExe caddy;
-  linkcheck = lib.getExe linkchecker;
+  linkcheck = lib.getExe lychee;
   nixpkgs = pkgs.path;
 
   nativeBuildInputs = [ asciidoctor ];
