@@ -1,55 +1,62 @@
 {
   description = "The purely functional static site generator in Nix expression language.";
 
+  inputs.utils.url = "github:numtide/flake-utils";
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
-  inputs.std.url = "github:divnix/std";
-  inputs.std.inputs.nixpkgs.follows = "nixpkgs";
+  outputs = { self, utils, nixpkgs, ... }:
+    utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs { inherit system; };
 
-  outputs = {
-    self,
-    std,
-    nixpkgs,
-  } @ inputs:
-    std.growOn {
-      inherit inputs;
-      cellsFrom = std.incl ./src [
-        ./src/_automation
-        ./src/data
-        ./src/renderers
-        ./src/app
-      ];
-      cellBlocks = with std.blockTypes; [
-        # ./src/_automation
-        (devshells "devshells")
-        (runnables "tasks")
-        (runnables "tests")
-        {
-          name = "libtests";
-          type = "unspecified";
-        }
-        # ./src/data
-        (functions "styxthemes")
-        {
-          name = "presets";
-          type = "templates";
-        }
-        # ./src/renderers
-        (functions "docs")
-        (functions "docslib")
-        (functions "styxlib")
-        # ./src/app
-        (installables "cli")
-        (runnables "parsers")
-      ];
-    }
-    # soil
-    {
-      formatter = std.harvest nixpkgs.legacyPackages ["alejandra"];
-      devShells = std.harvest self ["_automation" "devshells"];
-      packages = std.harvest self [["_automation" "tasks"] ["app" "cli"]];
-      hydraJobs = std.winnow (n: _: n != "default") self ["app" "cli"];
-      templates = std.pick self ["data" "presets"];
-      lib = std.harvest self ["renderers" "styxlib"];
+        # -- src/app -----------------------------------------------------
+        styx = import ./src/app/cli.nix { inherit pkgs self; };
+        parsers = import ./src/app/parsers.nix { inherit pkgs; };
+
+        # -- src/data ------------------------------------------------------
+        styxthemes = import ./src/data/styxthemes.nix { inherit pkgs; };
+
+        # -- src/renderers ---------------------------------------------------
+        styxlib = import ./src/renderers/styxlib.nix { inherit pkgs styx parsers; };
+        docslib = import ./src/renderers/docslib.nix { inherit pkgs styxlib; };
+        docs = import ./src/renderers/docs/default.nix { inherit pkgs self styxlib docslib; };
+
+        # -- src/_automation -------------------------------------------------
+        libtests = import ./src/_automation/libtests.nix { inherit pkgs styxlib; };
+        tests = import ./src/_automation/tests.nix {
+          inherit pkgs styxlib styxthemes styx libtests;
+        };
+        tasks = import ./src/_automation/tasks.nix {
+          inherit pkgs self docs styxlib styxthemes styx;
+        };
+        devShell = import ./src/_automation/devshells.nix { inherit pkgs; };
+      in
+      {
+        packages = {
+          inherit styx;
+          default = styx;
+          _automation = {
+            inherit tests;
+          };
+        };
+        lib = styxlib;
+        legacyPackages = { inherit styxthemes; };
+        devShells.default = devShell;
+        formatter = pkgs.alejandra;
+
+        apps = {
+          default = utils.lib.mkApp { drv = tasks.run-tests; };
+          run-tests = utils.lib.mkApp { drv = tasks.run-tests; };
+          update-doc = utils.lib.mkApp { drv = tasks.update-doc; };
+        };
+
+        # `nix flake check`: exercises the library test battery plus a full
+        # site build for every vendored theme (mirrors upstream's test task)
+        checks =
+          pkgs.lib.filterAttrs (n: _: n == "lib-report" || n == "lib-coverage" || pkgs.lib.hasSuffix "-site" n)
+            tests;
+      }
+    ) // {
+        templates = import ./src/data/presets.nix;
     };
 }

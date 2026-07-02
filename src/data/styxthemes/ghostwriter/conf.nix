@@ -25,43 +25,43 @@ with lib.lib; {
   social = {
     twitter = mkOption {
       description = "Twitter link";
-      type = with types; nullOr string;
+      type = with types; nullOr str;
       default = null;
     };
 
     github = mkOption {
       description = "GitHub link";
-      type = with types; nullOr string;
+      type = with types; nullOr str;
       default = null;
     };
 
     gitlab = mkOption {
       description = "GitHub link";
-      type = with types; nullOr string;
+      type = with types; nullOr str;
       default = null;
     };
 
     stack-overflow = mkOption {
       description = "Stack overflow link";
-      type = with types; nullOr string;
+      type = with types; nullOr str;
       default = null;
     };
 
     google-plus = mkOption {
       description = "Google plus link";
-      type = with types; nullOr string;
+      type = with types; nullOr str;
       default = null;
     };
 
     linked-in = mkOption {
       description = "Linked in link";
-      type = with types; nullOr string;
+      type = with types; nullOr str;
       default = null;
     };
 
     email = mkOption {
       description = "GitHub link";
-      type = with types; nullOr string;
+      type = with types; nullOr str;
       default = null;
     };
   };

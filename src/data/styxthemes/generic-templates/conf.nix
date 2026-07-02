@@ -10,7 +10,7 @@ with lib.lib; {
       version = mkOption {
         default = "3.3.7";
         description = "Selects bootstrap version to use.";
-        type = types.string;
+        type = types.str;
       };
     };
 
@@ -20,7 +20,7 @@ with lib.lib; {
       version = mkOption {
         default = "3.1.1";
         description = "Selects jQuery version to use.";
-        type = types.string;
+        type = types.str;
       };
     };
 
@@ -30,7 +30,7 @@ with lib.lib; {
       version = mkOption {
         default = "4.7.0";
         description = "Selects font-awesome version to use.";
-        type = types.string;
+        type = types.str;
       };
     };
 
@@ -39,13 +39,13 @@ with lib.lib; {
       version = mkOption {
         default = "9.9.0";
         description = "Selects highlightjs version to use.";
-        type = types.string;
+        type = types.str;
       };
       style = mkOption {
         default = "default";
         description = "Style used by highlight.js, for available styles see https://highlightjs.org/static/demo/.";
         example = "agate";
-        type = types.string;
+        type = types.str;
       };
       extraLanguages = mkOption {
         default = [];

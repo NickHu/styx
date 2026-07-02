@@ -325,7 +325,7 @@ with styxlib.utils; rec {
     }: let
       pages' = attrValues pages;
     in
-      fold (
+      foldr (
         p: acc:
           if isList p
           then acc ++ (map (recursiveUpdate default) p)

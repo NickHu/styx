@@ -4,12 +4,12 @@ with lib.lib; {
     description = mkOption {
       description = "Site description, added in the footer.";
       default = "Write a description for your new site here.";
-      type = types.string;
+      type = types.str;
     };
 
     copyright = mkOption {
       default = "&copy; 2017";
-      type = types.string;
+      type = types.str;
       description = "Site copyright, added in the footer.";
     };
   };

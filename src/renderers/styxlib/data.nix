@@ -183,7 +183,7 @@ in rec {
           (parseFile {inherit fileData env;}) // extraArgs
       ) (getFiles dir);
       list = filter filterDraftsFn data;
-      attrs = fold (d: acc: acc // {"${d.fileData.basename}" = d;}) {} list;
+      attrs = foldr (d: acc: acc // {"${d.fileData.basename}" = d;}) {} list;
     in
       if asAttrs
       then attrs
@@ -421,11 +421,11 @@ in rec {
       taxonomies,
     }: let
       rawTaxonomy =
-        fold (
+        foldr (
           taxonomy: plist:
-            fold (
+            foldr (
               set: plist:
-                fold (
+                foldr (
                   term: plist:
                     plist ++ [{"${taxonomy}" = [{"${term}" = [set];}];}]
                 )

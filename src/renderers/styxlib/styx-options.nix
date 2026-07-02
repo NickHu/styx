@@ -1,11 +1,5 @@
-{
-  inputs,
-  cell,
-}: let
-  inherit (inputs) nixpkgs;
-  inherit (inputs.cells.app) parsers;
-
-  l = nixpkgs.lib // builtins;
+{ pkgs, parsers }: let
+  l = pkgs.lib // builtins;
 in {
   lib.data = {
     markup = {
@@ -16,7 +10,7 @@ in {
           description = "Supported extensions for asciidoctor files.";
         };
         converter = l.mkOption {
-          default = f: "${l.getExe nixpkgs.asciidoctor} -b xhtml5 -s -a showtitle -o- ${f} > $out";
+          default = f: "${l.getExe pkgs.asciidoctor} -b xhtml5 -s -a showtitle -o- ${f} > $out";
           type = with l.types; functionTo str;
           description = "Command to convert asciidoc as a function that take the path of the file to convert as parameter.";
         };
@@ -33,7 +27,7 @@ in {
           description = "Supported extensions for markdown files.";
         };
         converter = l.mkOption {
-          default = f: "${l.getExe nixpkgs.pandoc} ${f} > $out";
+          default = f: "${l.getExe pkgs.pandoc} ${f} > $out";
           type = with l.types; functionTo str;
           description = "Command to convert markdown as a function that take the path of the file to convert as parameter.";
         };

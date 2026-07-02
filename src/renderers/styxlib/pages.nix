@@ -598,7 +598,7 @@ with styxlib.proplist; rec {
           _id = acc._id + 1;
         }
         // (optionalAttrs (d ? _attrName) {"${d._attrName}" = head list;});
-      raw = fold fn base data';
+      raw = foldr fn base data';
       data' =
         if isAttrs data
         then mapAttrsToList (n: v: v // {_attrName = n;}) data

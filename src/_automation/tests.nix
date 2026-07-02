@@ -1,13 +1,6 @@
-{
-  inputs,
-  cell,
-}: let
-  l = inputs.nixpkgs.lib // builtins;
-
-  inherit (inputs) nixpkgs;
-  inherit (inputs.cells.renderers) styxlib;
-  inherit (inputs.cells.data) styxthemes;
-  inherit (inputs.cells.app.cli) styx;
+{ pkgs, styxlib, styxthemes, styx, libtests }: let
+  l = pkgs.lib // builtins;
+  nixpkgs = pkgs;
 
   defaultEnv = {
     preferLocalBuild = true;
@@ -74,6 +67,7 @@ in
         echo "staging test inside $tmptestdir ..."
         cp -r ${styxthemes.showcase}/example/* "$tmptestdir"/
         export HOME=$tmptestdir
+        export XDG_CONFIG_HOME=$tmptestdir/.config
         export GIT_CONFIG_NOSYSTEM=1
         git config --global user.name  "styx test"
         git config --global user.email "styx@test.styx"
@@ -97,10 +91,10 @@ in
         REPORT=$(cat <<'REPORT'
         ---
         Lib Tests Report
-        ${l.toString ((l.length cell.libtests.results.success) + (l.length cell.libtests.results.failures))} tests run.
-        - ${l.toString (l.length cell.libtests.results.success)} success(es).
-        - ${l.toString (l.length cell.libtests.results.failures)} failure(s).
-        ${l.optionalString ((l.length cell.libtests.results.failures) > 0) ''
+        ${l.toString ((l.length libtests.results.success) + (l.length libtests.results.failures))} tests run.
+        - ${l.toString (l.length libtests.results.success)} success(es).
+        - ${l.toString (l.length libtests.results.failures)} failure(s).
+        ${l.optionalString ((l.length libtests.results.failures) > 0) ''
 
           Failures details:
 
@@ -113,22 +107,22 @@ in
               in
                 header + code + expected + got + lsep
             )
-            cell.libtests.results.failures}''}
+            libtests.results.failures}''}
         ---
         REPORT
         )
 
         echo "$REPORT"
-        ${l.optionalString ((l.length cell.libtests.results.failures) > 0) "exit 1"}
+        ${l.optionalString ((l.length libtests.results.failures) > 0) "exit 1"}
       '';
 
     lib-coverage = nixpkgs.writeText "lib-tests-coverage.sh" ''
       REPORT=$(cat <<'REPORT'
       ---
       Lib Tests Coverage
-      ${l.toString (l.length cell.libtests.missingTests)} functions missing tests:
+      ${l.toString (l.length libtests.missingTests)} functions missing tests:
 
-      ${styxlib.template.mapTemplate (f: " - ${f}") cell.libtests.missingTests}
+      ${styxlib.template.mapTemplate (f: " - ${f}") libtests.missingTests}
       ---
       REPORT
       )

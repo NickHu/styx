@@ -95,7 +95,7 @@ in rec {
 
     function = criteria: list: let
       subset = sub: super:
-        fold (a: b: a && b) true (
+        foldr (a: b: a && b) true (
           mapAttrsToList (
             k: v: let
               v' = getAttr k super;

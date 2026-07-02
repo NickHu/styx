@@ -3,13 +3,14 @@ Callers:
   - bin/styx
 */
 {siteFile}: let
-  inputs = {
-    nixpkgs = import ./pkgs.nix;
-    self = toString ./.;
+  pkgs = import ./pkgs.nix;
+  self = ./.;
+  parsers = import ./src/app/parsers.nix { inherit pkgs; };
+  styxlib = import ./src/renderers/styxlib.nix {
+    inherit pkgs parsers;
+    styx = pkgs.styx;
   };
-  cell = {inherit docslib;};
-
-  docslib = import ./src/renderers/docslib.nix {inherit inputs cell;};
-  docs = import ./src/renderers/docs/default.nix {inherit inputs cell;};
+  docslib = import ./src/renderers/docslib.nix { inherit pkgs styxlib; };
+  docs = import ./src/renderers/docs/default.nix { inherit pkgs self styxlib docslib; };
 in
   docs.site siteFile {extraConf.siteUrl = "http://domain.org";}

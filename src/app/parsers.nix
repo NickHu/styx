@@ -1,12 +1,7 @@
-{
-  inputs,
-  cell,
-}: let
-  inherit (inputs) nixpkgs;
-  l = nixpkgs.lib // builtins;
-
-  inherit (nixpkgs.python3Packages) parsimonious;
-  inherit (nixpkgs.writers) writePython3Bin;
+{ pkgs }: let
+  l = pkgs.lib // builtins;
+  inherit (pkgs.python3Packages) parsimonious;
+  inherit (pkgs.writers) writePython3Bin;
 in {
   asciidoc = let
     drv = writePython3Bin "asciidoc-parser" {libraries = [parsimonious];} (l.readFile ./parsers/asciidoc.py);

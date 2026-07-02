@@ -1,21 +1,14 @@
-{
-  inputs,
-  cell,
-}: let
-  inherit (inputs) nixpkgs;
-  inherit (inputs.cells.data) styxthemes;
-  inherit (inputs.cells.app.cli) styx;
-
+{ pkgs, styx, parsers }: let
   callStyxSite = siteFnOrFile: let
     call = l.customisation.callPackageWith (
-      nixpkgs.extend (_: _: {inherit styx;})
+      pkgs.extend (_: _: {inherit styx;})
     );
   in
     call siteFnOrFile;
 
-  l = nixpkgs.lib // builtins;
+  l = pkgs.lib // builtins;
 
-  styxOptions = import ./styxlib/styx-options.nix {inherit inputs cell;};
+  styxOptions = import ./styxlib/styx-options.nix { inherit pkgs parsers; };
 
   compat = prev: final: (l.mapAttrs
     (n:
@@ -87,7 +80,7 @@
 
     lib = l;
 
-    data = import ./styxlib/data.nix l nixpkgs {
+    data = import ./styxlib/data.nix l pkgs {
       inherit
         (self)
         utils
@@ -95,7 +88,7 @@
         config
         ;
     };
-    generation = import ./styxlib/generation.nix l nixpkgs {
+    generation = import ./styxlib/generation.nix l pkgs {
       inherit
         (self)
         utils
@@ -123,7 +116,7 @@
           conf
           ;
       }
-      // (import ./styxlib/load-themes.nix l nixpkgs self);
+      // (import ./styxlib/load-themes.nix l pkgs self);
     utils = import ./styxlib/utils.nix l;
     proplist = import ./styxlib/proplist.nix l {
       inherit
@@ -131,7 +124,7 @@
         utils
         ;
     };
-    conf = import ./styxlib/conf.nix l nixpkgs {
+    conf = import ./styxlib/conf.nix l pkgs {
       inherit
         (self)
         utils

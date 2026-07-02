@@ -1,7 +1,6 @@
+# a plain value, not a function: these are `nix flake init -t` templates
+# and don't need pkgs/self/anything else
 {
-  inputs,
-  cell,
-}: {
   default = {
     description = "Minimal New Styx Site";
     path = ./presets/new-site;

@@ -1,20 +1,13 @@
-{
-  inputs,
-  cell,
-  site,
-}: let
-  inherit (inputs) nixpkgs;
-  inherit (cell) docslib styxlib;
+{ pkgs, self, styxlib, docslib, site }: let
+  l = pkgs.lib // builtins;
 
-  l = nixpkgs.lib // builtins;
-
-  highlightSrc = inputs.self + /docs/highlight;
+  highlightSrc = self + /docs/highlight;
   themes = l.reverseList site.loaded.themes;
   pages =
     if site ? pages
     then styxlib.generation.pagesToList {inherit (site) pages;}
     else [];
-  doc = nixpkgs.writeText "site.adoc" ''
+  doc = pkgs.writeText "site.adoc" ''
 
     ////
 
@@ -49,14 +42,14 @@
 
   '';
 in
-  nixpkgs.stdenv.mkDerivation rec {
+  pkgs.stdenv.mkDerivation rec {
     name = "styx-docs";
     unpackPhase = ":";
 
     preferLocalBuild = true;
     allowSubstitutes = false;
 
-    buildInputs = [nixpkgs.asciidoctor];
+    buildInputs = [pkgs.asciidoctor];
 
     buildPhase = ''
       mkdir build
@@ -75,6 +68,6 @@ in
         themes}
       cp build/index.html $out/
       cp -r ${highlightSrc} $out/
-      cp ${nixpkgs.writeText "themes.adoc" (docslib.themesDoc site.loaded.env themes)} $out/themes-generated.adoc
+      cp ${pkgs.writeText "themes.adoc" (docslib.themesDoc site.loaded.env themes)} $out/themes-generated.adoc
     '';
   }

@@ -14,22 +14,10 @@ Callers:
   pkgs ? import ./pkgs.nix,
   debug ? false,
 }: let
-  # configuration set
+  parsers = import ./src/app/parsers.nix { inherit pkgs; };
   styxlib = import ./src/renderers/styxlib.nix {
-    inputs = {
-      nixpkgs = pkgs;
-      cells = {
-        data.styxthemes = import ./themes-compat.nix;
-        app = {
-          cli = {inherit (pkgs) styx;};
-          parsers = import ./src/app/parsers.nix {
-            inputs = {nixpkgs = pkgs;};
-            cell = null;
-          };
-        };
-      };
-    };
-    cell = null;
+    inherit pkgs parsers;
+    styx = pkgs.styx;
   };
 
   loaded = styxlib.themes.load {

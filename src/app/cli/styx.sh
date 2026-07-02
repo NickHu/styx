@@ -190,7 +190,7 @@ output=
 clean=
 
 # linkchecker program
-linkchecker="linkchecker"
+linkchecker="lychee"
 # server program
 server="caddy"
 # hostname or ip the server is listening on

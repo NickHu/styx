@@ -1,12 +1,5 @@
-{
-  inputs,
-  cell,
-  site,
-}: let
-  inherit (inputs) nixpkgs;
-  inherit (cell) docslib styxlib;
-
-  l = nixpkgs.lib // builtins;
+{ pkgs, styxlib, docslib, site }: let
+  l = pkgs.lib // builtins;
 
   namespaces = let
     fqFunctionName = namespace: name: "lib.${namespace}.${name}";
@@ -38,7 +31,7 @@
       "utils" = null;
     };
 
-  doc = nixpkgs.writeText "lib.adoc" ''
+  doc = pkgs.writeText "lib.adoc" ''
 
     ////
 
@@ -67,7 +60,7 @@
 
   '';
 in
-  nixpkgs.stdenv.mkDerivation {
+  pkgs.stdenv.mkDerivation {
     name = "styx-docs";
 
     preferLocalBuild = true;
@@ -75,7 +68,7 @@ in
 
     unpackPhase = ":";
 
-    buildInputs = [nixpkgs.asciidoctor];
+    buildInputs = [pkgs.asciidoctor];
 
     buildPhase = ''
       mkdir build

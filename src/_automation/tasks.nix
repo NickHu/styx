@@ -1,43 +1,41 @@
-{
-  inputs,
-  cell,
-}: let
-  inherit (inputs) nixpkgs;
-  inherit (inputs.cells.renderers) docs styxlib;
-  inherit (inputs.cells.data) styxthemes;
-  inherit (inputs.cells.app.cli) styx;
-
-  l = nixpkgs.lib // builtins;
+# NOTE: run-tests/update-doc shell out to `nix run/build .#_automation.tests.X`,
+# which assumes the ./src/_automation/tests.nix outputs are wired into your
+# flake.nix under that attrpath. They aren't in this repo's flake.nix by
+# default (see flake.nix comments) -- wire them up if you want this script
+# usable as-is.
+{ pkgs, self, docs, styxlib, styxthemes, styx }: let
+  nixpkgs = pkgs;
+  l = pkgs.lib // builtins;
 in {
   run-tests = let
     run-main = test: ''
       echo "Run '${test}' ..."
-      if nix run "${inputs.self + "#${nixpkgs.system}._automation.tests.${test}"}" --show-trace; then
-        echo "\e[0;32m  success: ${test}\e[0m"
+      if nix run "${self + "#_automation.tests.${test}"}" --show-trace; then
+        echo "  success: ${test}"
       else
-        echo "\e[0;101m  failure: ${test}\e[0m"
+        echo "  failure: ${test}"
         exit 1
       fi
     '';
     run-site = test: ''
       echo "Run '${test}' ..."
-      if nix build "${inputs.self + "#${nixpkgs.system}._automation.tests.${test}"}" --show-trace; then
-        echo "\e[0;32m  success: ${test}\e[0m"
+      if nix build "${self + "#_automation.tests.${test}"}" --show-trace; then
+        echo "  success: ${test}"
       else
-        echo "\e[0;101m  failure: ${test}\e[0m"
+        echo "  failure: ${test}"
         exit 1
       fi
     '';
     write-report = report: ''
-      nix build "${inputs.self + "#${nixpkgs.system}._automation.tests.${report}"}" --show-trace
+      nix build "${self + "#_automation.tests.${report}"}" --show-trace
       . ./result
     '';
   in
-    nixpkgs.writeScriptBin "run-tests" ''
+    nixpkgs.writeShellScriptBin "run-tests" ''
       echo ""
       echo "------------------------------------------------"
       echo ""
-      echo "\e[1;93mCode Linting:\e[0m"
+      echo "Code Linting:"
       echo ""
 
       ${l.getExe nixpkgs.statix} check
@@ -45,7 +43,7 @@ in {
       echo ""
       echo "------------------------------------------------"
       echo ""
-      echo "\e[1;93mMain tests:\e[0m"
+      echo "Main tests:"
       echo ""
 
       ${run-main "new"}
@@ -56,7 +54,7 @@ in {
       echo ""
       echo "------------------------------------------------"
       echo ""
-      echo "\e[1;93mTheme tests:\e[0m"
+      echo "Theme tests:"
       echo ""
 
       ${run-site "generic-templates-site"}
@@ -70,7 +68,7 @@ in {
       echo ""
       echo "------------------------------------------------"
       echo ""
-      echo "\e[1;93mLibrary tests:\e[0m"
+      echo "Library tests:"
       echo ""
 
       ${write-report "lib-report"}
@@ -82,7 +80,7 @@ in {
   update-doc = let
     site = _: rec {
       loaded =
-        (import inputs.self {
+        (import self {
           pkgs = nixpkgs;
           themes = l.reverseList (l.attrValues styxthemes);
           env = {
@@ -99,7 +97,7 @@ in {
     doc-site = docs.site site {};
     doc-library = docs.library site {};
   in
-    nixpkgs.writeScriptBin "update-doc" ''
+    nixpkgs.writeShellScriptBin "update-doc" ''
       repoRoot="$(git rev-parse --show-toplevel)"
       target="$(readlink -f -- "$repoRoot/docs/")"
 

@@ -1,17 +1,10 @@
-{
-  inputs,
-  cell,
-}:
+{ pkgs, styxlib }:
 /*
 
 Library Test Battery
 */
 let
-  l = inputs.nixpkgs.lib // builtins;
-
-  inherit (inputs) nixpkgs;
-  inherit (inputs.cells.renderers) styxlib;
-  inherit (inputs.cells.app.cli) styx;
+  l = pkgs.lib // builtins;
 
   decls = styxlib.styxOptions;
   root = styxlib.conf.parseDecls {
@@ -41,7 +34,7 @@ let
     ];
 
   runTests =
-    l.fold (
+    l.foldr (
       test: acc:
         if test.code == test.expected
         then (acc // {success = acc.success ++ [test];})
@@ -107,7 +100,7 @@ let
     }
   ];
 in rec {
-  functions = l.fold (x: acc: acc // x) {} libs;
+  functions = l.foldr (x: acc: acc // x) {} libs;
 
   tests = let
     ex = l.mapAttrsToList (name: fn: let

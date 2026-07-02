@@ -1,13 +1,11 @@
+# Usage: nix repl ./repl.nix
 let
   flake = builtins.getFlake (toString ./.);
-  deSystemize = flake.inputs.std.deSystemize builtins.currentSystem;
-
-  l = inp.nixpkgs.lib;
+  system = builtins.currentSystem;
+  l = flake.inputs.nixpkgs.lib;
   pretty = l.generators.toPretty {};
-
-  inp = builtins.mapAttrs (_: deSystemize) flake.inputs;
-  out = flake.${builtins.currentSystem};
+  out = flake.outputs.${system} or flake.outputs;
 in
-  l.trace "inp: ${pretty (l.attrNames inp)}"
-  l.trace "out: ${pretty (l.mapAttrs (_: l.mapAttrs (_: _: "...")) out)}"
-  {inherit inp out;}
+  l.trace "inputs: ${pretty (l.attrNames flake.inputs)}"
+  l.trace "outputs: ${pretty (l.attrNames out)}"
+  { inherit (flake) inputs; inherit out; }

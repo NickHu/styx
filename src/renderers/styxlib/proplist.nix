@@ -336,7 +336,7 @@ with styxlib.utils; rec {
       })
     ];
 
-    function = fold (
+    function = foldr (
       p: acc: let
         k = propKey p;
       in

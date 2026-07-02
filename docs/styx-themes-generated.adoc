@@ -713,7 +713,7 @@ true
 ==== theme.lib.bootstrap.version
 
 Description:: Selects bootstrap version to use.
-Type:: Concatenated string
+Type:: string
 Default::
 +
 [source, nix]
@@ -752,7 +752,7 @@ true
 ==== theme.lib.font-awesome.version
 
 Description:: Selects font-awesome version to use.
-Type:: Concatenated string
+Type:: string
 Default::
 +
 [source, nix]
@@ -837,7 +837,7 @@ Example::
 ==== theme.lib.highlightjs.style
 
 Description:: Style used by highlight.js, for available styles see https://highlightjs.org/static/demo/.
-Type:: Concatenated string
+Type:: string
 Default::
 +
 [source, nix]
@@ -860,7 +860,7 @@ Example::
 ==== theme.lib.highlightjs.version
 
 Description:: Selects highlightjs version to use.
-Type:: Concatenated string
+Type:: string
 Default::
 +
 [source, nix]
@@ -899,7 +899,7 @@ true
 ==== theme.lib.jquery.version
 
 Description:: Selects jQuery version to use.
-Type:: Concatenated string
+Type:: string
 Default::
 +
 [source, nix]
@@ -3428,7 +3428,7 @@ Default::
 ==== theme.social.email
 
 Description:: GitHub link
-Type:: null or Concatenated string
+Type:: null or string
 Default::
 +
 [source, nix]
@@ -3444,7 +3444,7 @@ null
 ==== theme.social.github
 
 Description:: GitHub link
-Type:: null or Concatenated string
+Type:: null or string
 Default::
 +
 [source, nix]
@@ -3460,7 +3460,7 @@ null
 ==== theme.social.gitlab
 
 Description:: GitHub link
-Type:: null or Concatenated string
+Type:: null or string
 Default::
 +
 [source, nix]
@@ -3476,7 +3476,7 @@ null
 ==== theme.social.google-plus
 
 Description:: Google plus link
-Type:: null or Concatenated string
+Type:: null or string
 Default::
 +
 [source, nix]
@@ -3492,7 +3492,7 @@ null
 ==== theme.social.linked-in
 
 Description:: Linked in link
-Type:: null or Concatenated string
+Type:: null or string
 Default::
 +
 [source, nix]
@@ -3508,7 +3508,7 @@ null
 ==== theme.social.stack-overflow
 
 Description:: Stack overflow link
-Type:: null or Concatenated string
+Type:: null or string
 Default::
 +
 [source, nix]
@@ -3524,7 +3524,7 @@ null
 ==== theme.social.twitter
 
 Description:: Twitter link
-Type:: null or Concatenated string
+Type:: null or string
 Default::
 +
 [source, nix]
@@ -5499,7 +5499,7 @@ Default::
 ==== theme.site.copyright
 
 Description:: Site copyright, added in the footer.
-Type:: Concatenated string
+Type:: string
 Default::
 +
 [source, nix]
@@ -5515,7 +5515,7 @@ Default::
 ==== theme.site.description
 
 Description:: Site description, added in the footer.
-Type:: Concatenated string
+Type:: string
 Default::
 +
 [source, nix]

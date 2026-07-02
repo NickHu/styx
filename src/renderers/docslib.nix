@@ -1,12 +1,6 @@
-{
-  inputs,
-  cell,
-}: let
-  inherit (inputs) nixpkgs;
-  inherit (cell) docslib styxlib;
-
-  l = nixpkgs.lib // builtins;
-in {
+{ pkgs, styxlib }: let
+  l = pkgs.lib // builtins;
+in rec {
   pagesDoc = pages: ''
     == Pages List
     The site contains ${toString (l.length pages)} generated pages:
@@ -33,7 +27,7 @@ in {
         ${l.optionalString (theme.meta ? screenshot) ''
           ---
 
-          image::${docslib.mkScreenshotPath theme}[${theme.meta.name},align="center"]
+          image::${mkScreenshotPath theme}[${theme.meta.name},align="center"]
 
         ''}
 
@@ -59,7 +53,7 @@ in {
 
           ---
 
-          ${l.concatStringsSep "" (styxlib.proplist.propMap (docslib.mkConfDoc theme.meta.id) (styxlib.themes.docText (styxlib.themes.mkDoc theme.decls)))}
+          ${l.concatStringsSep "" (styxlib.proplist.propMap (mkConfDoc theme.meta.id) (styxlib.themes.docText (styxlib.themes.mkDoc theme.decls)))}
 
         ''}
 
@@ -74,7 +68,7 @@ in {
 
           ---
 
-          ${l.concatStringsSep "" (styxlib.proplist.propMap (docslib.mkTemplateDoc env theme.meta.id) (styxlib.utils.setToList theme.templates))}
+          ${l.concatStringsSep "" (styxlib.proplist.propMap (mkTemplateDoc env theme.meta.id) (styxlib.utils.setToList theme.templates))}
 
           :sectnums:
 
@@ -111,8 +105,8 @@ in {
 
     ${l.optionalString (styxlib.template.isDocTemplate template') ''
       ${l.optionalString (template' ? description) "Description:: ${template'.description}"}
-      ${l.optionalString (template' ? arguments) (docslib.mkTemplateArgs template'.arguments)}
-      ${l.optionalString (template' ? examples) "Example:: ${l.concatStringsSep "+\n---" (map docslib.mkTemplateExample template'.examples)}"}
+      ${l.optionalString (template' ? arguments) (mkTemplateArgs template'.arguments)}
+      ${l.optionalString (template' ? examples) "Example:: ${l.concatStringsSep "+\n---" (map mkTemplateExample template'.examples)}"}
       ${l.optionalString (template' ? notes) "[NOTE]\n====\n${template'.notes}\n====\n"}
     ''}
 
@@ -210,9 +204,9 @@ in {
     === ${function.name}
 
     ${l.optionalString (function ? description) "==== Description\n\n${function.description}\n"}
-    ${l.optionalString (function ? arguments) (docslib.mkFunctionArgs function.arguments)}
+    ${l.optionalString (function ? arguments) (mkFunctionArgs function.arguments)}
     ${l.optionalString (function ? return) "==== Return\n\n${function.return}\n"}
-    ${l.optionalString (function ? examples) "==== Example\n\n${l.concatStringsSep "\n---\n" (map docslib.mkFunctionExample function.examples)}\n"}
+    ${l.optionalString (function ? examples) "==== Example\n\n${l.concatStringsSep "\n---\n" (map mkFunctionExample function.examples)}\n"}
     ${l.optionalString (function ? notes) "[NOTE]\n====\n${function.notes}\n====\n"}
 
     :sectnums:

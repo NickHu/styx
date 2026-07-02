@@ -1,21 +1,10 @@
 let
   lock = builtins.fromJSON (builtins.unsafeDiscardStringContext (builtins.readFile (toString ./flake.lock)));
-
-  inputs = {
-    nixpkgs = import (builtins.fetchTree lock.nodes.nixpkgs.locked) {
-      system =
-        builtins.currentSystem
-        # currently needed for (pure) tests -> only work on that platfrom
-        or "x86_64-linux";
-    };
-    self = ./.;
+  nixpkgsSrc = builtins.fetchTree lock.nodes.nixpkgs.locked;
+  basePkgs = import nixpkgsSrc {
+    system = builtins.currentSystem or "x86_64-linux";
   };
-
-  cell = {};
 in
-  inputs.nixpkgs.extend (_: _: {
-    inherit
-      (import ./src/app/cli.nix {inherit inputs cell;})
-      styx
-      ;
+  basePkgs.extend (self: _: {
+    styx = import ./src/app/cli.nix { pkgs = self; self = ./.; };
   })

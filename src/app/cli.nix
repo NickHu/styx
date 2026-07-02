@@ -1,28 +1,24 @@
-{
-  inputs,
-  cell,
-}: let
-  inherit (inputs) nixpkgs;
-  inherit (inputs.nixpkgs) stdenv;
-
-  l = nixpkgs.lib // builtins;
-
-  styx = stdenv.mkDerivation rec {
+{ pkgs, self }: let
+  l = pkgs.lib // builtins;
+  inherit (pkgs) stdenv;
+in
+  stdenv.mkDerivation rec {
     preferLocalBuild = true;
     allowSubstitutes = false;
 
-    inherit (nixpkgs) runtimeShell; # substitued variable
+    inherit (pkgs) runtimeShell;
 
     pname = "styx";
-    version = l.unsafeDiscardStringContext (l.fileContents (inputs.self + /VERSION)); # substitued variable
+    version = l.unsafeDiscardStringContext (l.fileContents (self + /VERSION));
 
-    bin = nixpkgs.writeShellApplication {
+    bin = pkgs.writeShellApplication {
       name = pname;
-      runtimeInputs = [nixpkgs.caddy nixpkgs.linkchecker nixpkgs.jq nixpkgs.nix];
+      excludeShellChecks = ["SC2317"];
+      runtimeInputs = [pkgs.caddy pkgs.lychee pkgs.jq pkgs.nix];
       text = l.fileContents ./cli/styx.sh;
     };
 
-    nativeBuildInputs = [nixpkgs.asciidoctor];
+    nativeBuildInputs = [pkgs.asciidoctor];
 
     phases = ["installPhase" "installCheckPhase"];
 
@@ -32,31 +28,22 @@
       substituteInPlace                       $out/bin/styx                        --subst-var version
 
       # Compatibility
-      cp -r ${inputs.self}/* $out
+      cp -r ${self}/* $out
 
       # Documentation
       mkdir -p                                $out/share/doc/styx
       asciidoctor \
-      ${inputs.self}/docs/index.adoc       -o $out/share/doc/styx/index.html
+      ${self}/docs/index.adoc       -o $out/share/doc/styx/index.html
       substituteInPlace                       $out/share/doc/styx/index.html       --subst-var version
       asciidoctor \
-      ${inputs.self}/docs/styx-themes.adoc -o $out/share/doc/styx/styx-themes.html
+      ${self}/docs/styx-themes.adoc -o $out/share/doc/styx/styx-themes.html
       substituteInPlace                       $out/share/doc/styx/styx-themes.html --subst-var version
       asciidoctor \
-      ${inputs.self}/docs/library.adoc     -o $out/share/doc/styx/library.html
+      ${self}/docs/library.adoc     -o $out/share/doc/styx/library.html
       substituteInPlace                       $out/share/doc/styx/library.html     --subst-var version
-      cp -r ${inputs.self}/docs/highlight     $out/share/doc/styx/
-      cp -r ${inputs.self}/docs/imgs          $out/share/doc/styx/
+      cp -r ${self}/docs/highlight     $out/share/doc/styx/
+      cp -r ${self}/docs/imgs          $out/share/doc/styx/
     '';
-
-    # installCheckPhase = ''
-    #   runHook preInstallCheck
-    #   $out/bin/styx --version
-    #   $out/bin/styx new site my-site
-    #   $out/bin/styx gen-sample-data ./my-site
-    #   $out/bin/styx new theme my-theme ./my-site/themes
-    #   runHook postInstallCheck
-    # '';
 
     meta = {
       description = "Nix based static site generator";
@@ -68,10 +55,6 @@
     # compat with evtl old themes that use the old calling convention
     passthru = {
       # import pkgs.styx.themes
-      themes = "${l.toString inputs.self}/themes-compat.nix";
+      themes = "${l.toString self}/themes-compat.nix";
     };
-  };
-in {
-  inherit styx;
-  default = styx;
-}
+  }
