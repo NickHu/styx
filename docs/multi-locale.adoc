@@ -3,6 +3,8 @@
 
 While not being natively supported, Styx is flexible enough to generate multi-language sites.
 
+NOTE: The former `localesToPageList` helper was removed. Combine each locale's pages with `lib.generation.pagesToList` and `lib.concatLists` (or build `pageList` manually) instead.
+
 For multi-locale sites, it is recommended to change `site.nix` structure to fit the locales. The following example is just a suggestion and should be adapted to needs:
 
 The https://github.com/fractalide/fractalide-website-styx[Fractalide website] is an example of a fully multi-locale Styx site.
@@ -123,12 +125,13 @@ NOTE: Multi-locale sites make it easy to mix namespaces.
 
   /* converting pages attribute set to a list
   */
-  pageList = lib.localesToPageList {                      <11>
-    inherit locales;
-    default = locale: {
-      layout  = locale.env.templates.layout;
-    };
-  };
+  pageList = lib.concatLists (lib.mapAttrsToList (
+    name: locale:
+    lib.generation.pagesToList {
+      pages = lib.mapAttrs (n: p: p // { path = locale.prefix + p.path; }) locale.pages;
+      default = { layout = locale.env.templates.layout; };
+    }
+  ) locales);                                              <11>
 
   /* Generating the site
   */

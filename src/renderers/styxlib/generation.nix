@@ -1,8 +1,7 @@
 # Page and site generation functions
-lib: nixpkgs: styxlib:
+lib: nixpkgs: { utils }:
 with lib;
-assert assertMsg (hasAttr "utils" styxlib) "styxlib.generation uses styxlib.utils";
-with styxlib.utils;
+with utils;
 rec {
   generatePage = page: page.layout (page.template page);
 

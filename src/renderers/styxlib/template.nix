@@ -1,5 +1,7 @@
 # Template functions
-lib: styxlib: with lib; rec {
+lib:
+with lib;
+rec {
   processBlocks = blocks: {
     content = mapTemplate (b: b.content) blocks;
     extraJS = flatten (catAttrs "extraJS" blocks);
@@ -26,14 +28,6 @@ lib: styxlib: with lib; rec {
     p // contentSet;
 
   mapTemplate = concatMapStringsSep "\n";
-
-  mapTemplateWithIndex = concatImapStringsSep "\n";
-
-  mod = a: b: a - (b * (a / b));
-
-  isOdd = a: (mod a 2) == 1;
-
-  isEven = a: (mod a 2) == 0;
 
   parseDate =
     date:
@@ -103,35 +97,28 @@ lib: styxlib: with lib; rec {
         if m != null then elemAt m 0 else x;
     in
     rec {
-      # shortcuts
       date = {
         num = "${YYYY}-${MM}-${DD}";
         lit = "${D} ${B} ${YYYY}";
       };
       time = "${hh}:${mm}:${ss}";
       T = "${date.num}T${time}Z";
-      # year
       YYYY = year;
       YY = substring 2 4 year;
       Y = YYYY;
       y = YY;
-      # month
       MM = month;
       M = doNotPad MM;
       m = MM;
       m- = M;
       inherit (monthConv."${MM}") b;
       inherit (monthConv."${MM}") B;
-      # day
       DD = day;
       D = doNotPad DD;
       d- = D;
-      # hour
       hh = hour;
       h = doNotPad hh;
-      # minut
       mm = minut;
-      # second
       ss = second;
     };
 }

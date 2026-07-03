@@ -17,12 +17,13 @@ The library contains various functions that can be used in `site.nix` and templa
 
 This appendix is a frozen snapshot of the former auto-generated reference. The
 `documentedFunction` metadata and regeneration tooling were removed; update this
-file by hand when library APIs change.
+file by hand when library APIs change. Several sections still describe removed
+APIs (taxonomies, multipages, `proplist`, and similar); prefer the narrative
+docs under link:./index.html[Styx documentation] for current behavior.
 
-- link:./index.html[Styx documentation]
-
-Library functions are grouped in namespaces, but are also all included in the top-level scope to be easily accessible. +
-So for example, `lib.utils.chunksOf` can be shortened to `lib.chunksOf`.
+Styx APIs live under namespaced modules (`lib.data`, `lib.pages`, `lib.generation`,
+`lib.template`, `lib.themes`, `lib.utils`). Nixpkgs helpers are also available
+at the top level (`lib.optionalString`, `lib.recursiveUpdate`, and so on).
 
 :sectnums:
 
