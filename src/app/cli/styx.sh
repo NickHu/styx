@@ -134,7 +134,16 @@ realpath() {
     SOURCE="$(readlink "$SOURCE")"
     [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
   done
-  echo "$SOURCE"
+  # the loop above only chases a symlink named by the *final* path component
+  # (e.g. a symlinked script). It leaves intermediate symlinked directories
+  # (e.g. invoking via a `nix build` "result" symlink, as in
+  # "result/bin/styx") unresolved. Canonicalize the containing directory too,
+  # otherwise "$root" ends up pointing at a path that is itself a symlink;
+  # Nix then adds *that symlink* (rather than its target) to the store when
+  # it's used as a path value (e.g. the `self` compat self-reference),
+  # producing a dangling reference inside sandboxed builds.
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+  echo "$DIR/$(basename "$SOURCE")"
 }
 
 #-------------------------------
@@ -152,7 +161,12 @@ action=
 # styx root dir
 root="$(dirname "$(dirname "$(realpath "${BASH_SOURCE[0]}")")")"
 # styx imports nixpkgs & styx during runtime
-pkgs="$(cat "$root"/pkgs.nix)"
+# NOTE: this must stay a reference to the file (an absolute path), not its
+# contents. `--arg` evaluates its value as a standalone Nix expression with
+# no associated file, so any relative path within it (e.g. `./flake.lock`,
+# `./src/app/cli.nix` in pkgs.nix) would otherwise resolve against the
+# caller's current directory instead of "$root".
+pkgs="import $root/pkgs.nix"
 # styx themes attributeset
 themes="$root/themes-compat.nix"
 # styx sample-data path
@@ -486,9 +500,12 @@ if [ "$action" = build ]; then
   else
     mkdir -p "$target"
   fi
-  cp -L -r "$path"/* "$target"/
+  # using "$path"/. rather than "$path"/* so this also works for a site with
+  # no generated files yet (e.g. right after 'styx new site', before any
+  # pages/data are added), where the glob would otherwise not expand.
+  cp -L -r "$path"/. "$target"/
   # fixing permissions
-  chmod u+rw -R "$target"/*
+  chmod u+rw -R "$target"
   echo "Generated site in '$target'"
   exit 0
 fi
