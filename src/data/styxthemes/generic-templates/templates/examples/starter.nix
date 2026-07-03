@@ -45,7 +45,4 @@ env: let
         ''
     );
 in
-  env.lib.template.documentedTemplate {
-    description = "Template for the example site, internal use only.";
-    inherit env template;
-  }
+  template env

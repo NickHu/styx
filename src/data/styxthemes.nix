@@ -2,4 +2,4 @@
   l = pkgs.lib // builtins;
   themeDirs = l.filterAttrs (_: t: t == "directory") (l.readDir ./styxthemes);
 in
-  l.mapAttrs (name: _: pkgs.callPackage (./styxthemes + "/${name}") {}) themeDirs
+  l.mapAttrs (name: _: ./styxthemes + "/${name}") themeDirs

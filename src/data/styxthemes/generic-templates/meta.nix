@@ -1,5 +1,5 @@
 {lib}:
-with lib.lib; {
+with lib; {
   id = "generic-templates";
   name = "Generic templates";
   license = licenses.mit;

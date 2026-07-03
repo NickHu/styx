@@ -5,7 +5,7 @@ env: let
     templates,
     ...
   }: page:
-    with lib.lib; ''
+    with lib; ''
       <entry>
         <id>${templates.url page}</id>
         <title>${page.title}</title>
@@ -24,10 +24,4 @@ env: let
       </entry>
     '';
 in
-  env.lib.template.documentedTemplate {
-    description = ''
-      Template generating an Atom feed entry. +
-      Used in `templates.feed.atom`.
-    '';
-    inherit env template;
-  }
+  template env

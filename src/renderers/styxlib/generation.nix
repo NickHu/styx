@@ -3,122 +3,9 @@ lib: nixpkgs: styxlib:
 with lib;
 assert assertMsg (hasAttr "utils" styxlib) "styxlib.generation uses styxlib.utils";
 with styxlib.utils; rec {
-  /*
-  ===============================================================
+  generatePage = page: page.layout (page.template page);
 
-   generatePage
-
-  ===============================================================
-  */
-
-  generatePage = documentedFunction {
-    description = "Function to generate a page source, used by `mkSite`.";
-
-    arguments = [
-      {
-        name = "page";
-        description = "A page attribute set with at least `layout` and `template` defined.";
-        type = "Page";
-      }
-    ];
-
-    examples = [
-      (mkExample {
-        literalCode = ''
-          generatePage {
-            layout = template: "<html><body>''${template}</body></html>";
-            template = page: '''
-              <h1>Styx example page</h1>
-              ''${page.content}
-            ''';
-            content = "<p>Hello world!</p>";
-          };
-        '';
-        code = generatePage {
-          layout = template: "<html><body>${template}</body></html>";
-          template = page: ''
-            <h1>Styx example page</h1>
-            ${page.content}
-          '';
-          content = "<p>Hello world!</p>";
-        };
-        expected = ''
-          <html><body><h1>Styx example page</h1>
-          <p>Hello world!</p>
-          </body></html>'';
-      })
-    ];
-
-    return = "Page source";
-
-    function = page: page.layout (page.template page);
-  };
-
-  /*
-  ===============================================================
-
-   mkSite
-
-  ===============================================================
-  */
-
-  mkSite = documentedFunction {
-    description = "Generate a site, this is the main function of a styx site.";
-
-    arguments = {
-      meta = {
-        description = "Meta attribute set of the generated site derivation.";
-        type = "Attrs";
-        default = {};
-      };
-      files = {
-        description = "A list of static files directories to copy in the site.";
-        type = "[ Path ]";
-        default = [];
-      };
-      pageList = {
-        description = "A list of pages attributes sets to generate.";
-        type = "[ Page ]";
-        default = [];
-      };
-      substitutions = {
-        description = "A substitution set to apply to static files.";
-        type = "Attrs";
-        default = {};
-      };
-      preGen = {
-        description = "A set of command to execute before generating the site.";
-        type = "String";
-        default = "";
-      };
-      postGen = {
-        description = "A set of command to execute after generating the site.";
-        type = "String";
-        default = "";
-      };
-      genPageFn = {
-        description = "Function to generate a page source from a page attribute set.";
-        type = "Page -> String";
-        default = literalExpression "lib.generation.generatePage";
-      };
-      pagePathFn = {
-        description = "Function to generate a page from a page attribute set.";
-        type = "Page -> String";
-        default = literalExpression "page: page.path";
-      };
-    };
-
-    examples = [
-      (mkExample {
-        literalCode = ''
-          mkSite { pageList = [ pages.index ]; }
-        '';
-      })
-    ];
-
-    return = "The site derivation.";
-
-    function = {
+  mkSite = {
       meta ? {},
       files ? [],
       pageList ? [],
@@ -245,81 +132,8 @@ with styxlib.utils; rec {
 
         ${postGen}
       '';
-  };
 
-  /*
-  ===============================================================
-
-   pagesToList
-
-  ===============================================================
-  */
-
-  pagesToList = documentedFunction {
-    description = "Convert a set of pages to a list of pages.";
-
-    arguments = {
-      pages = {
-        description = "A set of page attribute sets.";
-        type = "Attrs";
-      };
-      default = {
-        description = "Attribute set of default values to add to every page set, useful to set `layout`.";
-        type = "Attrs";
-        default = {};
-      };
-    };
-
-    return = "`[ Page ]`";
-
-    examples = [
-      (mkExample {
-        literalCode = ''
-          pagelist = pagestolist {
-            inherit pages;
-            default.layout = templates.layout;
-          };
-        '';
-      })
-      (mkExample {
-        literalCode = ''
-          pagesToList {
-            pages = {
-              foo = { path = "/foo.html"; };
-              bar = [ { path = "/bar-1.html"; } { path = "/bar-2.html"; } ];
-            };
-            default = {
-              baz = "baz";
-            };
-          }
-        '';
-        code = pagesToList {
-          pages = {
-            foo = {path = "/foo.html";};
-            bar = [{path = "/bar-1.html";} {path = "/bar-2.html";}];
-          };
-          default = {
-            baz = "baz";
-          };
-        };
-        expected = [
-          {
-            baz = "baz";
-            path = "/foo.html";
-          }
-          {
-            baz = "baz";
-            path = "/bar-1.html";
-          }
-          {
-            baz = "baz";
-            path = "/bar-2.html";
-          }
-        ];
-      })
-    ];
-
-    function = {
+  pagesToList = {
       pages,
       default ? {},
     }: let
@@ -329,128 +143,13 @@ with styxlib.utils; rec {
         p: acc:
           if isList p
           then acc ++ (map (recursiveUpdate default) p)
-          else if is "pages" p
+          else if (p ? _type && p._type == "pages")
           then acc ++ (map (recursiveUpdate default) p.pages)
           else acc ++ [(recursiveUpdate default p)]
       ) []
       pages';
-  };
 
-  /*
-  ===============================================================
-
-   localesToPageList
-
-  ===============================================================
-  */
-
-  localesToPageList = documentedFunction {
-    description = "Convert a set of locales to a list of pages.";
-
-    arguments = {
-      locales = {
-        description = "A set of locales, each having a `pages` attribute set.";
-        type = "Attrs";
-      };
-      default = {
-        description = "A function to set default values to the pages, eg: to set the default `layout` template.";
-        type = "Locale -> Attrs";
-        default = literalExpression "locale: {}";
-      };
-    };
-
-    return = "`[ Page ]`";
-
-    examples = [
-      (mkExample {
-        literalCode = ''
-          pagelist = localesToPageList {
-            inherit locales;
-            default = locale: {
-              layout = locale.env.templates.layout;
-            };
-          };
-        '';
-      })
-      (mkExample {
-        literalCode = ''
-          localesToPageList {
-            locales = {
-              eng = rec {
-                code   = "eng";
-                prefix = "/''${code}";
-                pages = {
-                  foo = { path = "/foo.html"; };
-                  bar = [ { path = "/bar-1.html"; } { path = "/bar-2.html"; } ];
-                };
-              };
-              fre = rec {
-                code = "fre";
-                prefix = "/''${code}";
-                pages = {
-                  foo = { path = prefix + "/foo.html"; };
-                  bar = [ { path = prefix + "/bar-1.html"; } { path = prefix + "/bar-2.html"; } ];
-                };
-              };
-            };
-            default = locale: {
-              baz = "''${locale.code}-baz";
-            };
-          }
-        '';
-        code = localesToPageList {
-          locales = {
-            eng = rec {
-              code = "eng";
-              prefix = "/${code}";
-              pages = {
-                foo = {path = "/foo.html";};
-                bar = [{path = "/bar-1.html";} {path = "/bar-2.html";}];
-              };
-            };
-            fre = rec {
-              code = "fre";
-              prefix = "/${code}";
-              pages = {
-                foo = {path = prefix + "/foo.html";};
-                bar = [{path = prefix + "/bar-1.html";} {path = prefix + "/bar-2.html";}];
-              };
-            };
-          };
-          default = locale: {
-            baz = "${locale.code}-baz";
-          };
-        };
-        expected = [
-          {
-            baz = "eng-baz";
-            path = "/foo.html";
-          }
-          {
-            baz = "eng-baz";
-            path = "/bar-1.html";
-          }
-          {
-            baz = "eng-baz";
-            path = "/bar-2.html";
-          }
-          {
-            baz = "fre-baz";
-            path = "/fre/foo.html";
-          }
-          {
-            baz = "fre-baz";
-            path = "/fre/bar-1.html";
-          }
-          {
-            baz = "fre-baz";
-            path = "/fre/bar-2.html";
-          }
-        ];
-      })
-    ];
-
-    function = {
+  localesToPageList = {
       locales,
       default ? (locale: {}),
     }:
@@ -462,5 +161,4 @@ with styxlib.utils; rec {
             }
         )
         locales);
-  };
 }

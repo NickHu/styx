@@ -39,27 +39,21 @@ Open the documentation:
 $ nix run .#doc
 ```
 
-Regenerate the committed theme/library doc excerpts after changing documented functions or themes:
-
-```
-$ nix run .#update-doc
-```
-
 ### Themes
 
-Build a bundled theme example site:
+Build the bundled theme example site:
 
 ```
-$ nix build .#checks.x86_64-linux.showcase-site
+$ nix build .#checks.x86_64-linux.generic-templates-site
 ```
 
-Loading the showcase example site in `nix repl`:
+Loading the generic-templates example site in `nix repl`:
 
 ```
 $ nix repl ./repl.nix
 > themes = out.legacyPackages.styxthemes
 
-nix-repl> site = import "${themes.showcase}/example/site.nix" {
+nix-repl> site = import "${themes.generic-templates}/example/site.nix" {
             pkgs = out.packages;
             styxlib = out.lib;
             styxthemes = themes;
@@ -67,7 +61,7 @@ nix-repl> site = import "${themes.showcase}/example/site.nix" {
           }
 
 nix-repl> site.conf
-{ siteUrl = "https://styx-static.github.io/styx-theme-showcase"; theme = { ... }; }
+{ siteUrl = "https://styx-static.github.io/styx-theme-generic-templates"; theme = { ... }; }
 ```
 
 ## Commit policy

@@ -4,7 +4,7 @@ env: let
     conf,
     ...
   }:
-    with lib.lib;
+    with lib;
       optionalString (conf.theme.services.google-analytics.trackingID != null) ''
         <script>
           (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -18,7 +18,4 @@ env: let
         </script>
       '';
 in
-  env.lib.template.documentedTemplate {
-    description = "Template managing link:https://www.google.com/analytics/[google analytics] integration. Controlled with `conf.theme.services.google-analytics.trackingID` configuration option.";
-    inherit env template;
-  }
+  template env

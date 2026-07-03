@@ -1,5 +1,5 @@
 {lib}:
-with lib.lib; {
+with lib; {
   /*
   Javascript and CSS Libraries using CDN
   */

@@ -13,9 +13,11 @@
 [preface]
 == Preface
 
-This document contains automatically generated documentation for themes included in the `styx-themes` package set.
+This document describes the `generic-templates` theme bundled with Styx.
 
-It is generated with a link:https://github.com/styx-static/styx/blob/master/scripts/themes-doc.nix[nix expression] using each theme metadata and configuration interface.
+Older theme reference pages were removed when the auto-documentation pipeline
+was dropped; see the link:https://github.com/styx-static/themes[styx-themes]
+repository for other official themes.
 
 - link:./index.html[Styx documentation]
 

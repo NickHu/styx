@@ -124,9 +124,9 @@ example locally:
 
 [source, bash]
 ----
-$ nix build github:styx-static/styx#checks.x86_64-linux.showcase-site
+$ nix build github:styx-static/styx#checks.x86_64-linux.generic-templates-site
 $ nix shell nixpkgs#python3 -c python3 -m http.server 8080 --directory ./result
 ----
 
-Replace `showcase-site` with any theme check name (`ghostwriter-site`,
-`hyde-site`, etc.).
+This repository bundles only the `generic-templates` theme. Other official themes
+live in the link:https://github.com/styx-static/themes[styx-themes] repository.

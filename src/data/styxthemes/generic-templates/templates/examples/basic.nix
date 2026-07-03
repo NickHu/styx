@@ -20,7 +20,4 @@ env: let
         + "<h1>Hello, world!</h1>"
     );
 in
-  env.lib.template.documentedTemplate {
-    description = "Template for the example site, internal use only.";
-    inherit env template;
-  }
+  template env

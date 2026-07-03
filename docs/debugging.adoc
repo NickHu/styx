@@ -47,15 +47,15 @@ nix-repl> with (site.lib.data.parseDate "2016-05-18T12:40:21"); "${date.lit}, ${
 [source]
 .Rendering a page source
 ----
-nix-repl> showcase = import "${styxthemes.showcase}/example/site.nix" {
+nix-repl> site = import "${styxthemes.generic-templates}/example/site.nix" {
              inherit pkgs styxlib styxthemes;
              sampleData = ./data/sample;
            }
 
-nix-repl> with showcase; lib.generation.generatePage (pages.about // { layout = templates.layout; }) # <1>
+nix-repl> with site; lib.generation.generatePage (pages.about // { layout = templates.layout; }) # <1>
 "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>\n  <meta charset=\"utf-8\">...."
 
-nix-repl> with showcase; templates.layout (templates.page.full pages.about) # <2>
+nix-repl> with site; templates.layout (templates.page.full pages.about) # <2>
 "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>\n  <meta charset=\"utf-8\">...."
 ----
 

@@ -4,7 +4,7 @@ env: let
     conf,
     ...
   }:
-    with lib.lib; let
+    with lib; let
       cnf = conf.theme.services.piwik;
     in
       optionalString cnf.enable ''
@@ -24,7 +24,4 @@ env: let
         <!-- End Piwik Code -->
       '';
 in
-  env.lib.template.documentedTemplate {
-    description = "Template managing link:https://piwik.org/[Piwik] integration. Controlled with `conf.theme.services.piwik.*` configuration options.";
-    inherit env template;
-  }
+  template env

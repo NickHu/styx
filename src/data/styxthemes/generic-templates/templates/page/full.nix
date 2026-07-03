@@ -4,7 +4,7 @@ env: let
     templates,
     ...
   }:
-    with lib.lib;
+    with lib;
       lib.template.normalTemplate (page: ''
         <div>
         ${optionalString (page ? title) "<h1>${page.title}</h1>"}
@@ -14,8 +14,4 @@ env: let
         </div>
       '');
 in
-  env.lib.template.documentedTemplate {
-    description = "Normal template for rendering a page.";
-
-    inherit env template;
-  }
+  template env

@@ -1,8 +1,6 @@
 /*
 Small, opt-in helpers to build `nix run`-able flake apps around a built
-site. These are plain functions (not `documentedFunction`s, they aren't
-part of the templating library and don't show up in the generated library
-docs) meant to be wired into a *site's own* flake, e.g.:
+site. Wire them into a *site's own* flake, e.g.:
 
   apps.serve = styx.lib.apps.mkServe { site = self.packages.${system}.default; };
 

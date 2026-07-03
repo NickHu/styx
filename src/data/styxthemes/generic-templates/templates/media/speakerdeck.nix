@@ -7,7 +7,7 @@ env: let
     id,
     slide ? null,
   }:
-    with lib.lib;
+    with lib;
       templates.tag.script (
         {
           src = "//speakerdeck.com/assets/embed.js";
@@ -19,20 +19,4 @@ env: let
         // (optionalAttrs (slide != null) {data-slide = toString slide;})
       );
 in
-  env.lib.template.documentedTemplate {
-    description = "Template to embed a speakerdeck presentation.";
-
-    arguments = {
-      id = {
-        description = "Presentation id.";
-        type = "String";
-      };
-      slide = {
-        description = "Slide to display.";
-        type = "Null | Int";
-        default = null;
-      };
-    };
-
-    inherit env template;
-  }
+  template env

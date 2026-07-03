@@ -5,7 +5,7 @@ env: let
     data,
     ...
   }:
-    with lib.lib; let
+    with lib; let
       pageHeader = t: ''
         <div class="page-header">
           <h1>${t}</h1>
@@ -413,7 +413,4 @@ env: let
           ''
       );
 in
-  env.lib.template.documentedTemplate {
-    description = "Template for the example site, internal use only.";
-    inherit env template;
-  }
+  template env

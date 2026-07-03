@@ -5,16 +5,4 @@ env: let
     <meta name="viewport" content="width=device-width, initial-scale=1">
   '';
 in
-  env.lib.template.documentedTemplate {
-    description = ''
-      Generic `meta` tags, should be overriden to fit needs. +
-      Default contents:
-
-      +
-      [source, html]
-      ----
-      ${template env {}}
-      ----
-    '';
-    inherit env template;
-  }
+  template env

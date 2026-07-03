@@ -4,7 +4,7 @@ env: let
     lib,
     ...
   }:
-    with lib.lib;
+    with lib;
       {
         id ? "navbar",
         inverted ? false,
@@ -29,80 +29,4 @@ env: let
         </nav>
       '';
 in
-  env.lib.template.documentedTemplate {
-    description = "Generates a navbar.";
-    arguments = {
-      id = {
-        description = "HTML `id` used by the navbar.";
-        type = "String";
-        default = "navbar";
-      };
-      inverted = {
-        description = "Whether to make navbar inverted.";
-        type = "Boolean";
-        default = false;
-      };
-      extraClasses = {
-        description = "Extra CSS classes to add to the navbar.";
-        default = [];
-        type = "[ String ]";
-      };
-      brand = {
-        description = "HTML code of the brand section.";
-        default = env.lib.lib.literalExpression "templates.bootstrap.navbar.brand";
-        type = "String";
-      };
-      content = {
-        description = "Content of the navbar, usually a list of `templates.bootstrap.navbar.*` templates calls.";
-        type = "String";
-      };
-    };
-    examples = [
-      (env.lib.utils.mkExample {
-        literalCode = ''
-          templates.bootstrap.navbar.default {
-            inverted = true;
-            brand = '''<a class="navbar-brand" href="#">Project Name</a>''';
-            content = [
-              (templates.bootstrap.navbar.nav {
-                items = [
-                  { title = "Home";    path = "/#"; }
-                  { title = "About";   path = "/#about"; }
-                  { title = "Contact"; path = "/#contact"; }
-                ];
-                currentPage = { title = "Home"; path = "/#"; };
-              })
-            ];
-          }
-        '';
-        code = with env;
-          templates.bootstrap.navbar.default {
-            inverted = true;
-            brand = ''<a class="navbar-brand" href="#">Project Name</a>'';
-            content = [
-              (templates.bootstrap.navbar.nav {
-                items = [
-                  {
-                    title = "Home";
-                    path = "/#";
-                  }
-                  {
-                    title = "About";
-                    path = "/#about";
-                  }
-                  {
-                    title = "Contact";
-                    path = "/#contact";
-                  }
-                ];
-                currentPage = {
-                  title = "Home";
-                  path = "/#";
-                };
-              })
-            ];
-          };
-      })
-    ];
-    inherit env template;
-  }
+  template env

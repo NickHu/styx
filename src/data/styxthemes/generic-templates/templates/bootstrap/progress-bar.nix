@@ -4,7 +4,7 @@ env: let
     stripped ? false,
     value,
   }:
-    with lib.lib; let
+    with lib; let
       typeClass = optionalString (type != null) "progress-bar-${type}";
       strippedClass = optionalString stripped "progress-bar-striped";
       classes = filter (x: x != "") ["progress-bar" typeClass strippedClass];
@@ -14,26 +14,4 @@ env: let
       </div>
     '';
 in
-  env.lib.template.documentedTemplate {
-    description = "Generate a bootstrap progress bar.";
-    arguments = {
-      value = {
-        description = "Value of the progress bar as percentage.";
-        type = "Integer";
-      };
-      type = {
-        description = "Type of the progress bar.";
-        type = ''"success" | "info" | "warning" | "danger"'';
-      };
-    };
-    examples = [
-      (env.lib.utils.mkExample {
-        literalCode = ''
-          templates.bootstrap.progress-bar { value = 60; }
-        '';
-        code = with env;
-          templates.bootstrap.progress-bar {value = 60;};
-      })
-    ];
-    inherit env template;
-  }
+  template env

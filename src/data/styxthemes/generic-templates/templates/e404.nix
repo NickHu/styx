@@ -9,7 +9,4 @@ env: let
       title = "404";
     };
 in
-  env.lib.template.documentedTemplate {
-    description = "Basic template for error 404 page, can be overriden to fit needs.";
-    inherit env template;
-  }
+  template env

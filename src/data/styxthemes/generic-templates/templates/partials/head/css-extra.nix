@@ -14,26 +14,8 @@ env: let
     templates,
     ...
   }: {page}:
-    with lib.lib;
+    with lib;
       optionalString (page ? extraCSS)
       (lib.template.mapTemplate templates.tag.link-css page.extraCSS);
 in
-  env.lib.template.documentedTemplate {
-    description = ''
-      Template responsible for loading page specific css files. +
-      To be used, the Page should define an `extraCSS` attribute containing a list of attribute sets.
-    '';
-    examples = [
-      (env.lib.utils.mkExample {
-        literalCode = ''
-          pages.index = {
-            layout   = templates.layout;
-            template = templates.pages.full;
-            path     = "/index.html";
-            extraCSS = [ { href = "/css/index.css"; } ];
-          };
-        '';
-      })
-    ];
-    inherit env template;
-  }
+  template env

@@ -66,7 +66,8 @@ Styx ships a complete HTML manual as a flake package:
 nix run github:styx-static/styx#doc
 ```
 
-Theme and library reference pages can be regenerated for a loaded site with `nix run .#update-doc` in the styx repository.
+Theme and library reference appendices ship with the manual as static AsciiDoc
+(`library.html`, `styx-themes.html`).
 
 ## Getting started
 
@@ -91,25 +92,13 @@ The official Styx site is an example of a basic software site with release news.
 
 See [site.nix](https://github.com/styx-static/styx-site/blob/master/site.nix) for implementation details.
 
-Bundled theme example sites are built by `nix flake check` in this repository (for example `checks.x86_64-linux.showcase-site`).
+Bundled theme example sites are built by `nix flake check` in this repository (for example `checks.x86_64-linux.generic-templates-site`).
 
 ## As a Nix laboratory
 
 This repository is also a playground for more exotic nix usages and experiments:
 
 - The flake exposes `lib`, bundled themes, documentation, templates, and a `checks` output for CI.
-
-- Library functions and theme templates use special functions (`documentedFunction` and `documentedTemplate`) that allow automatically generating documentation and tests.
-  Library function tests can print a coverage or a report (with pretty printing):
-
-      ```
-      $ nix build .#checks.x86_64-linux.lib-report && cat ./result
-      $ nix build .#checks.x86_64-linux.lib-coverage && cat ./result
-      ```
-
-- [src/renderers/docs/library.nix](./src/renderers/docs/library.nix) is a nix expression that generate an AsciiDoc documentation from the library `documentedFunction`s ([example](https://styx-static.github.io/styx-site/documentation/library.html)).
-
-- [src/renderers/docs/site.nix](./src/renderers/docs/site.nix) is a nix expressions that automatically generate documentation for styx themes, including configuration interface and templates ([example](https://styx-static.github.io/styx-site/documentation/styx-themes.html)). Regenerate the committed excerpts with `nix run .#update-doc`.
 
 - [parsimonious](https://github.com/erikrose/parsimonious) is used to do some [voodoo](src/app/parsers/) on markup files to turn them into valid nix expressions, so nix expressions can be embedded in Markdown or AsciiDoc.
 

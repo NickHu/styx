@@ -6,7 +6,7 @@ env: let
     html ? {},
     ...
   }: args:
-    with lib.lib; let
+    with lib; let
       lang =
         html.lang
         or (
@@ -20,7 +20,4 @@ env: let
         + (templates.partials.body args)
       }</html>'';
 in
-  env.lib.template.documentedTemplate {
-    description = "Template responsible for generating the `html` tag, includes <<templates.partials.head.default>> and <<templates.partials.body>>.";
-    inherit env template;
-  }
+  template env

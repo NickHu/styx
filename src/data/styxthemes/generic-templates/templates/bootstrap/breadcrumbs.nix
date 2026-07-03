@@ -5,7 +5,7 @@ env: let
     templates,
     ...
   }: page:
-    with lib.lib;
+    with lib;
       optionalString (page ? breadcrumbs) ''
         <ol class="breadcrumb">
         ${lib.template.mapTemplate (
@@ -19,37 +19,4 @@ env: let
         </ol>
       '';
 in
-  env.lib.template.documentedTemplate {
-    description = "Generate a page breadcrumbs; takes a page attribute with a `breadcrumbs` attribute containing a list of pages.";
-    arguments = [
-      {
-        name = "page";
-        description = "The page to generate breadcrumbs from.";
-        type = "Page";
-      }
-    ];
-    examples = [
-      (env.lib.utils.mkExample {
-        literalCode = ''
-          templates.bootstrap.breadcrumbs {
-            path = "/about.html";
-            title = "About";
-            breadcrumbs = [ { path = "/"; breadcrumbTitle = "Home"; title = "My site"; } ];
-          }
-        '';
-        code = with env;
-          templates.bootstrap.breadcrumbs {
-            path = "/about.html";
-            title = "About";
-            breadcrumbs = [
-              {
-                path = "/";
-                breadcrumbTitle = "Home";
-                title = "My site";
-              }
-            ];
-          };
-      })
-    ];
-    inherit env template;
-  }
+  template env

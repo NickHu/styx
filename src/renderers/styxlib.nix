@@ -1,129 +1,46 @@
-{ pkgs, parsers }: let
+{
+  pkgs,
+  parsers,
+}: let
   l = pkgs.lib // builtins;
 
-  styxOptions = import ./styxlib/styx-options.nix { inherit pkgs parsers; };
+  styxOptions = import ./styxlib/styx-options.nix {inherit pkgs parsers;};
 
-  compat = prev: final: (l.mapAttrs
-    (n:
-      l.warn ''
-
-        The non fully qualified accessor 'styxlib.${n}' is deprecated.
-        FQN: ${
-          if l.hasAttr n final.data
-          then "styxlib.data.${n}"
-          else if l.hasAttr n final.generation
-          then "styxlib.generation.${n}"
-          else if l.hasAttr n final.pages
-          then "styxlib.pages.${n}"
-          else if l.hasAttr n final.template
-          then "styxlib.template.${n}"
-          else if l.hasAttr n final.themes
-          then "styxlib.themes.${n}"
-          else if l.hasAttr n final.utils
-          then "styxlib.utils.${n}"
-          else if l.hasAttr n final.proplist
-          then "styxlib.proplist.${n}"
-          else if l.hasAttr n final.conf
-          then "styxlib.conf.${n}"
-          else if l.hasAttr n l
-          then "styxlib.lib.${n}"
-          else "couldn't find origin"
-        }
-      '')
-    (
-      {
-        base = l;
-      }
-      // final.lib # keep here for evtl overrides
-      // final.data
-      // final.generation
-      // final.pages
-      // final.template
-      // final.themes
-      // final.utils
-      // final.proplist
-      // final.conf
-    ));
-
-  res = l.makeExtensibleWithCustomName "_hydrate" (self: {
-    hydrate = f: res._hydrate (l.composeExtensions f compat);
+  res = l.makeExtensibleWithCustomName "_hydrate" (self:
+    l // {
+    hydrate = f: res._hydrate f;
 
     config = throw ''
-
-      A library function call depends on the second init stage.
-
-      ---------------------------------------------------------
-
-      The Styx Library ('styxlib') has 2 initialization stages.
-
-      The first stage can be used previous to initializing
-      the custom configuration ('styxlib.config').
-
-      For any library function, however, that depends on the
-      custom library configuration, the second stage must be
-      initialized.
-
-      To inizialize the second stage:
-        - normally load a site via 'styxlib.themes.load'
-        - exceptionally initialize via
-          'styxlib.hydrate (_: _: { config = evaledStyxConfig; })'
+      styxlib.config is only available after loading themes via styxlib.themes.load.
     '';
 
     inherit styxOptions;
 
-    lib = l;
-
-    apps = import ./styxlib/apps.nix { inherit pkgs; };
+    apps = import ./styxlib/apps.nix {inherit pkgs;};
 
     data = import ./styxlib/data.nix l pkgs {
-      inherit
-        (self)
-        utils
-        proplist
-        config
-        ;
+      inherit (self) utils proplist config;
     };
     generation = import ./styxlib/generation.nix l pkgs {
-      inherit
-        (self)
-        utils
-        ;
+      inherit (self) utils;
     };
     pages = import ./styxlib/pages.nix l {
-      inherit
-        (self)
-        utils
-        proplist
-        ;
+      inherit (self) utils proplist;
     };
     template = import ./styxlib/template.nix l {
-      inherit
-        (self)
-        utils
-        ;
+      inherit (self) utils;
     };
     themes =
       import ./styxlib/themes.nix l {
-        inherit
-          (self)
-          utils
-          proplist
-          conf
-          ;
+        inherit (self) utils proplist conf;
       }
       // (import ./styxlib/load-themes.nix l pkgs self);
     utils = import ./styxlib/utils.nix l;
     proplist = import ./styxlib/proplist.nix l {
-      inherit
-        (self)
-        utils
-        ;
+      inherit (self) utils;
     };
     conf = import ./styxlib/conf.nix l pkgs {
-      inherit
-        (self)
-        utils
-        ;
+      inherit (self) utils;
     };
   });
 in

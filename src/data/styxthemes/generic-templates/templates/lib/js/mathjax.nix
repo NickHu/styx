@@ -5,7 +5,7 @@ env: let
     templates,
     ...
   }:
-    with lib.lib; let
+    with lib; let
       cnf = conf.theme.lib.mathjax;
     in
       optionalString cnf.enable
@@ -14,7 +14,4 @@ env: let
         crossorigin = "anonymous";
       });
 in
-  env.lib.template.documentedTemplate {
-    description = "Template loading the MathJax javascript library. Controlled by `conf.theme.lib.mathjax.*` configuration options.";
-    inherit env template;
-  }
+  template env

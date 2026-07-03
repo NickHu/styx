@@ -9,7 +9,7 @@ env: let
     currentPage ? null,
     ...
   }:
-    with lib.lib; let
+    with lib; let
       isCurrent = item:
         (currentPage
           != null
@@ -24,31 +24,4 @@ env: let
     in ''
       <li${active}><a ${href}${class}>${title}</a></li>'';
 in
-  env.lib.template.documentedTemplate {
-    description = "Generate a navbar nav item. Used internally by `bootstrap.navbar.nav`.";
-    arguments = [
-      {
-        name = "item";
-        description = "Item";
-        type = "Page";
-      }
-      {
-        name = "currentPage";
-        description = "Current page displayed.";
-        type = "[ Page ]";
-      }
-    ];
-    examples = [
-      (env.lib.utils.mkExample {
-        literalCode = ''templates.bootstrap.navbar.nav_item { item = { title = "Home"; path = "/"; }; }'';
-        code = with env;
-          templates.bootstrap.navbar.nav_item {
-            item = {
-              title = "Home";
-              path = "/";
-            };
-          };
-      })
-    ];
-    inherit env template;
-  }
+  template env

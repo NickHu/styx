@@ -4,7 +4,7 @@ env: let
     lib,
     ...
   }:
-    with lib.lib;
+    with lib;
       lib.template.normalTemplate (page: ''
         ${optionalString (page ? title) "<h1>${page.title}</h1>"}
 
@@ -16,8 +16,4 @@ env: let
         ${templates.bootstrap.pagination {inherit (page) pages index;}}
       '');
 in
-  env.lib.template.documentedTemplate {
-    description = "Normal template for rendering splitted pages.";
-
-    inherit env template;
-  }
+  template env

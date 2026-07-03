@@ -40,12 +40,12 @@ Each official theme includes an example site. To build one locally:
 
 [source, bash]
 ----
-$ nix build github:styx-static/styx#checks.x86_64-linux.showcase-site
+$ nix build github:styx-static/styx#checks.x86_64-linux.generic-templates-site
 $ nix shell nixpkgs#python3 -c python3 -m http.server 8080 --directory ./result
 ----
 
-The showcase example will be accessible at link:http://127.0.0.1:8080[http://127.0.0.1:8080].
+The generic-templates example will be accessible at link:http://127.0.0.1:8080[http://127.0.0.1:8080].
 Check the posts: they explain several styx features.
 
-Other theme examples are available as flake checks (`ghostwriter-site`,
-`hyde-site`, `nix-site`, etc.).
+Other official themes live in the link:https://github.com/styx-static/themes[styx-themes]
+repository; this flake only bundles `generic-templates`.

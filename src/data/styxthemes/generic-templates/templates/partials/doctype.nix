@@ -13,9 +13,6 @@ env: let
         "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
     '';
   };
+  template = {conf, ...}: doctypes."${conf.theme.html.doctype}";
 in
-  env.lib.template.documentedTemplate {
-    description = "Template declaring the doctype, controlled by `conf.theme.html.doctype`.";
-    template = {conf, ...}: doctypes."${conf.theme.html.doctype}";
-    inherit env;
-  }
+  template env

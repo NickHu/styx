@@ -7,32 +7,7 @@ with lib;
 with styxlib.utils;
 with styxlib.conf;
 with styxlib.themes; {
-  /*
-  ===============================================================
-
-   mergeConfs
-
-  ===============================================================
-  */
-
-  mergeConfs = documentedFunction {
-    description = ''
-      Merge a list of configurations.
-    '';
-
-    arguments = [
-      {
-        name = "confs";
-        description = "List of configurations.";
-        type = "[ Attrs | Path ]";
-      }
-    ];
-
-    return = ''
-      The merged configuration set.
-    '';
-
-    function = confs:
+  mergeConfs = confs:
       merge (map (c:
         if isPath c
         then
@@ -42,72 +17,8 @@ with styxlib.themes; {
           }
         else c)
       confs);
-  };
 
-  /*
-  ===============================================================
-
-   load
-
-  ===============================================================
-  */
-
-  load = documentedFunction {
-    description = ''
-      Load themes data.
-    '';
-
-    arguments = {
-      lib = {
-        description = "The styx library.";
-        type = "Attrs";
-      };
-      themes = {
-        description = "List of themes, local themes or packages.";
-        type = "[ (Path | Package) ]";
-        default = {};
-      };
-      config = {
-        description = "List of configuration or paths to configuration.";
-        type = "[ (Attrs | Path) ]";
-        default = [];
-      };
-      env = {
-        description = "An attribute set to merge to the environment, the environment is used in templates and returned in the `env` attribute.";
-        type = "Attrs";
-        default = {};
-      };
-    };
-
-    return = ''
-      A theme data attribute set containing:
-
-      * `conf`: Themes configuration merged with `extraConf`.
-      * `lib`: The merged themes library.
-      * `files`: List of static files folder.
-      * `templates`: The merged themes template set.
-      * `themes`: List of themes attribute sets.
-      * `decls`: Themes declaration set.
-      * `docs`: Themes documentation set.
-      * `env`: Generated environment attribute set, `extraEnv` merged with `lib`, `conf` and `templates`.
-    '';
-
-    examples = [
-      (mkExample {
-        literalCode = ''
-          themesData = lib.themes.load {
-            inherit lib themes;
-            env  = { inherit data pages; };
-            decls = lib.utils.merge [
-              (import ./conf.nix {/* ... */})
-              extraConf
-            ];
-          };
-        '';
-      })
-    ];
-
-    function = {
+  load = {
       lib,
       themes ? [],
       config ? [],
@@ -128,7 +39,6 @@ with styxlib.themes; {
         themes;
       lib' = merge ([secondStageStyxlib] ++ (catAttrs "lib" themesData));
       decls' = merge (catAttrs "decls" themesData);
-      docs = merge (catAttrs "docs" themesData);
       files = catAttrs "files" themesData;
 
       conf' = let
@@ -159,7 +69,7 @@ with styxlib.themes; {
       in
         mapAttrsRecursive (path: template: template env') templatesSet;
     in {
-      inherit docs files;
+      inherit files;
       lib = lib';
       decls = decls';
       env = env';
@@ -167,5 +77,4 @@ with styxlib.themes; {
       templates = templates';
       themes = themesData;
     };
-  };
 }

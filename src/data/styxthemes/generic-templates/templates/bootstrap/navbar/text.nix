@@ -1,6 +1,6 @@
 env: let
   template = {lib, ...}:
-    with lib.lib;
+    with lib;
       {
         content,
         extraClasses ? [],
@@ -13,38 +13,4 @@ env: let
         <p ${class}>${content}</p>
       '';
 in
-  env.lib.template.documentedTemplate {
-    description = "Template to generate a navbar text. Meant to be used in `bootstrap.navbar.default` `content` parameter.";
-    arguments = {
-      content = {
-        description = "Text content.";
-        type = "String";
-      };
-      align = {
-        description = "Alignment of the text.";
-        type = ''"right", "left" or null'';
-        default = null;
-      };
-      extraClasses = {
-        description = "Extra classes to add to the text.";
-        default = [];
-        type = "[ String ]";
-      };
-    };
-    examples = [
-      (env.lib.utils.mkExample {
-        literalCode = ''
-          templates.bootstrap.navbar.text {
-            content = "Hello world!";
-            align = "right";
-          }
-        '';
-        code = with env;
-          templates.bootstrap.navbar.text {
-            content = "Hello world!";
-            align = "right";
-          };
-      })
-    ];
-    inherit template env;
-  }
+  template env

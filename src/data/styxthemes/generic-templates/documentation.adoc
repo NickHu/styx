@@ -61,8 +61,6 @@ $ cp themes/generic-templates/templates/partials/content.nix themes/foo/template
 <3> Copy the generic-templates `templates/partials/content.nix` to the foo theme. +
 This example assumes `generic-templates` is available locally under `themes/`. You can also copy from the link:https://github.com/styx-static/styx-theme-generic-templates[generic-templates repository] at the desired version.
 
-NOTE: Every template of this theme use the `template.documentedTemplate` function that allow to generate template documentation.
-
 [source, nix]
 .Combining generic-templates and my-theme
 ----

@@ -5,7 +5,7 @@ env: let
     templates,
     ...
   }:
-    with lib.lib; let
+    with lib; let
       cnf = conf.theme.lib.highlightjs;
     in
       optionalString cnf.enable
@@ -20,7 +20,4 @@ env: let
           cnf.extraLanguages)
         + "<script>hljs.initHighlightingOnLoad();</script>\n");
 in
-  env.lib.template.documentedTemplate {
-    description = "Template loading the highlightjs javascript library. Controlled by `conf.theme.lib.highlightjs.*` configuration options.";
-    inherit env template;
-  }
+  template env

@@ -1,73 +1,8 @@
 # conf
 lib: nixpkgs: styxlib:
 with lib;
-assert assertMsg (hasAttr "utils" styxlib) "styxlib.conf uses styxlib.utils";
-with styxlib.utils; rec {
-  /*
-  ===============================================================
-
-   parseDecls
-
-  ===============================================================
-  */
-  parseDecls = documentedFunction {
-    description = ''
-      Parse configuration interface declarations.
-    '';
-
-    arguments = {
-      decls = {
-        description = "A configuration attribute set.";
-        type = "Attrs";
-      };
-      optionFn = {
-        description = "Function to convert options.";
-        type = "Option -> a";
-        default = literalExpression "lib.id";
-      };
-      valueFn = {
-        description = "Function to convert values.";
-        type = "a -> b";
-        default = literalExpression "lib.id";
-      };
-    };
-
-    return = "`Attrs`";
-
-    examples = [
-      (mkExample {
-        literalCode = ''
-          parseDecls {
-            optionFn = o: option.default;
-            valueFn  = v: v + 1;
-            decls = {
-              a.b.c = mkOption {
-                default = "abc";
-                type = types.str;
-              };
-              x.y = 1;
-            };
-          }
-        '';
-        code = parseDecls {
-          optionFn = option: option.default;
-          valueFn = v: v + 1;
-          decls = {
-            a.b.c = mkOption {
-              default = "abc";
-              type = types.str;
-            };
-            x.y = 1;
-          };
-        };
-        expected = {
-          a.b.c = "abc";
-          x.y = 2;
-        };
-      })
-    ];
-
-    function = {
+rec {
+  parseDecls = {
       decls,
       optionFn ? id,
       valueFn ? id,
@@ -84,39 +19,8 @@ with styxlib.utils; rec {
       result = recurse set;
     in
       recurse decls;
-  };
 
-  /*
-  ===============================================================
-
-   typeCheck
-
-  ===============================================================
-  */
-
-  typeCheck = documentedFunction {
-    description = ''
-      Type check configuration declarations against definitions.
-    '';
-
-    arguments = [
-      {
-        name = "decls";
-        description = "A configuration declarations attribute set.";
-        type = "Attrs";
-      }
-      {
-        name = "defs";
-        description = "A configuration definitions attribute set.";
-        type = "Attrs";
-      }
-    ];
-
-    return = ''
-      Throw an error if `defs` do not type-check with `decls`.
-    '';
-
-    function = decls:
+  typeCheck = decls:
       mapAttrsRecursive (
         path: def: let
           type = attrByPath (path ++ ["type"]) null decls;
@@ -128,5 +32,4 @@ with styxlib.utils; rec {
             else throw "The configuration option `theme.${showOption path}' is not a ${type.description}."
           else "no type"
       );
-  };
 }

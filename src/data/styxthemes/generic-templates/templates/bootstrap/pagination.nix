@@ -8,7 +8,7 @@ env: let
     index,
     pagesLimit ? null,
   }:
-    with lib.lib; let
+    with lib; let
       prevHref =
         if (index > 1)
         then templates.url (elemAt pages (index - 2))
@@ -60,38 +60,4 @@ env: let
         </nav>
       '';
 in
-  env.lib.template.documentedTemplate {
-    description = "Generate a pagination";
-    arguments = {
-      pages = {
-        description = "List of pages.";
-        type = "[ Page ]";
-      };
-      index = {
-        description = "Index of the current page.";
-        type = "Integer";
-      };
-      pagesLimit = {
-        description = "Maximum number of pages to show in the pagination, if set to `null` all pages are in the pagination.";
-        type = "Null | Int";
-        default = null;
-      };
-    };
-    examples = [
-      (env.lib.utils.mkExample {
-        literalCode = ''
-          templates.bootstrap.pagination {
-            pages = genList (x: { path = "/#''${toString (x + 1)}"; }) 10;
-            index = 5;
-          }
-        '';
-        code = with env;
-        with env.lib.lib;
-          templates.bootstrap.pagination {
-            pages = genList (x: {path = "/#${toString (x + 1)}";}) 10;
-            index = 5;
-          };
-      })
-    ];
-    inherit env template;
-  }
+  template env

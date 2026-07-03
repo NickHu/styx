@@ -1,13 +1,5 @@
 # Releasing a new version of styx
 
-## Themes update
-
-1. Update the documentation
-
-   ```sh
-   nix run .#update-doc
-   ```
-
 ## Styx
 
 1. Write release notes in `docs/release-notes.adoc`
@@ -15,7 +7,7 @@
 2. Run the tests
 
    ```sh
-   nix run .#run-tests
+   nix flake check
    ```
 
 3. Make a commit, and tag it with `vVERSION`, eg: `v0.5.0`
@@ -32,7 +24,7 @@
 1. Updating the `styx` expression and test that it works:
 
    ```sh
-   $ nix run . -- preview-theme showcase
+   $ nix build .#checks.x86_64-linux.generic-templates-site
    ```
 
 2. Submit a pull request to nixpkgs
