@@ -1,8 +1,7 @@
 # Data functions
-lib: nixpkgs: { utils, proplist, markup }:
+lib: nixpkgs: { utils, markup }:
 with lib;
 with utils;
-with proplist;
 let
   evaledMarkup = markup;
 
@@ -165,29 +164,4 @@ rec {
   markdownToHtml = markupToHtml "markdown";
 
   asciidocToHtml = markupToHtml "asciidoc";
-
-  mkTaxonomyData =
-    {
-      data,
-      taxonomies,
-    }:
-    let
-      rawTaxonomy = foldr (
-        taxonomy: plist:
-        foldr (
-          set: plist:
-          foldr (term: plist: plist ++ [ { "${taxonomy}" = [ { "${term}" = [ set ]; } ]; } ]) plist
-            set."${taxonomy}"
-        ) plist (filter (hasAttr taxonomy) data)
-      ) [ ] taxonomies;
-      semiCleanTaxonomy = propFlatten rawTaxonomy;
-      cleanTaxonomy = map (pl: { "${propKey pl}" = propFlatten (propValue pl); }) semiCleanTaxonomy;
-    in
-    cleanTaxonomy;
-
-  sortTerms = sort (a: b: valuesNb a > valuesNb b);
-
-  valuesNb = term: length (propValue term);
-
-  groupByFlatten = list: f: propFlatten (map (d: { "${f d}" = [ d ]; }) list);
 }

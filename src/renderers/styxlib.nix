@@ -7,20 +7,19 @@ let
   markup = import ./styxlib/markup.nix { inherit pkgs parsers; };
 
   utils = import ./styxlib/utils.nix l;
-  proplist = import ./styxlib/proplist.nix l { inherit utils; };
 
   styxlib =
     l
     // {
-      inherit utils proplist markup;
+      inherit utils markup;
 
       apps = import ./styxlib/apps.nix { inherit pkgs; };
 
       data = import ./styxlib/data.nix l pkgs {
-        inherit markup utils proplist;
+        inherit markup utils;
       };
       generation = import ./styxlib/generation.nix l pkgs { inherit utils; };
-      pages = import ./styxlib/pages.nix l { inherit utils proplist; };
+      pages = import ./styxlib/pages.nix l { inherit utils; };
       template = import ./styxlib/template.nix l { inherit utils; };
       themes = import ./styxlib/themes.nix l;
     };

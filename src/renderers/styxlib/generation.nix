@@ -78,43 +78,11 @@ rec {
               hasSubs=1
             fi
 
-            case "$file" in
-              *.less)
-                path=$(echo "$path" | sed -r 's/[^.]+$/css/')
-                [ -f "$out/$path" ] && rm $out/$path
-                (
-                  ${nixpkgs.lessc}/bin/lessc $input 2>/dev/null > $out/$path
-                  if [ ! -s "$out/$path" ]; then
-                    echo "Warning: could not build '$path'"
-                  fi
-                ) || (
-                  [ -f "$out/$path" ] && rm $out/$path
-                  echo "Warning: could not build '$path'"
-                )
-              ;;
-              *.s[ac]ss)
-                path=$(echo "$path" | sed -r 's/[^.]+$/css/')
-                [ -f "$out/$path" ] && rm $out/$path
-                (
-                  ${nixpkgs.sass}/bin/sass $input 2>/dev/null > "$out/$path"
-                  if [ ! -s "$out/$path" ]; then
-                    echo "Warning: could not build '$path'"
-                    rm $out/$path
-                  fi
-                ) || (
-                  [ -f "$out/$path" ] && rm "$out/$path"
-                  echo "Warning: could not build '$path'"
-                )
-              ;;
-              *)
-                [ -f "$out/$path" ] && rm "$out/$path"
-                if [ "$hasSubs" ]; then
-                  cp "$input" "$out/$path"
-                else
-                  ln -s "$input" "$out/$path"
-                fi;
-              ;;
-            esac
+            if [ "$hasSubs" ]; then
+              cp "$input" "$out/$path"
+            else
+              ln -s "$input" "$out/$path"
+            fi
 
           else
             [ -f "$out/$path" ] && rm "$out/$path"
@@ -156,19 +124,4 @@ rec {
       else
         acc ++ [ (recursiveUpdate default p) ]
     ) [ ] pages';
-
-  localesToPageList =
-    {
-      locales,
-      default ? (locale: { }),
-    }:
-    flatten (
-      mapAttrsToList (
-        _: locale:
-        pagesToList {
-          inherit (locale) pages;
-          default = default locale;
-        }
-      ) locales
-    );
 }

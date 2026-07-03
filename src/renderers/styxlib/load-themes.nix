@@ -22,7 +22,7 @@ in
         inherit styxlib themeModules configModules;
       };
       conf' = evaluated.config;
-      lib' = merge ([ lib ] ++ (catAttrs "lib" themesData));
+      lib' = foldl' recursiveUpdate lib (catAttrs "lib" themesData);
       files = catAttrs "files" themesData;
 
       env' = env // {
@@ -33,7 +33,7 @@ in
 
       templates' =
         let
-          templatesSet = merge (catAttrs "templates" themesData);
+          templatesSet = foldl' recursiveUpdate { } (catAttrs "templates" themesData);
         in
         mapAttrsRecursive (path: template: template env') templatesSet;
     in

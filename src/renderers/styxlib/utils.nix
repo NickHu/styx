@@ -34,8 +34,6 @@ lib: with lib; {
     in
     f [ ];
 
-  merge = foldl' recursiveUpdate { };
-
   sortBy =
     attribute: order:
     sort (
