@@ -81,7 +81,12 @@
             loaded = styxlib.themes.load {
               lib = styxlib;
               themes = [ ./src/data/presets/new-theme ];
-              config = [ { theme.site.title = "New Theme Test"; } ];
+              config = [
+                {
+                  config.siteUrl = ".";
+                  config.theme.site.title = "New Theme Test";
+                }
+              ];
               env = {
                 data = { };
                 pages = { };

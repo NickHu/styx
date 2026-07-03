@@ -1,13 +1,10 @@
 # Data functions
-lib: nixpkgs: styxlib:
+lib: nixpkgs: { utils, proplist, markup }:
 with lib;
-assert assertMsg (hasAttr "utils" styxlib) "styxlib.data uses styxlib.utils";
-assert assertMsg (hasAttr "proplist" styxlib) "styxlib.data uses styxlib.proplist";
-assert assertMsg (hasAttr "config" styxlib) "styxlib.data uses styxlib.config";
-with styxlib.utils;
-with styxlib.proplist;
+with utils;
+with proplist;
 let
-  evaledMarkup = styxlib.config.lib.data.markup;
+  evaledMarkup = markup;
 
   evaledMarkupFiles = mapAttrs (n: v: v.extensions) evaledMarkup;
   evaledMarkupExts = flatten (attrValues evaledMarkupFiles);

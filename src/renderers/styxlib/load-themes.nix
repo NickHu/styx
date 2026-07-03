@@ -1,28 +1,12 @@
-# themes
+# Theme loading and configuration (nixpkgs lib.evalModules).
 lib: nixpkgs: styxlib:
 with lib;
-# assert assertMsg (hasAttr "utils" styxlib) "styxlib.load-themes uses styxlib.utils";
-# assert assertMsg (hasAttr "conf" styxlib) "styxlib.load-themes uses styxlib.conf";
-# assert assertMsg (hasAttr "themes" styxlib) "styxlib.load-themes uses styxlib.themes";
 with styxlib.utils;
-with styxlib.conf;
 with styxlib.themes;
+let
+  evalConfig = import ./eval-config.nix lib nixpkgs;
+in
 {
-  mergeConfs =
-    confs:
-    merge (
-      map (
-        c:
-        if isPath c then
-          importApply c {
-            pkgs = nixpkgs;
-            lib = styxlib; # load entire (second stage) styxlib
-          }
-        else
-          c
-      ) confs
-    );
-
   load =
     {
       lib,
@@ -31,36 +15,17 @@ with styxlib.themes;
       env ? { },
     }:
     let
-      # use secondStageStyxlib to make things like loadFile available
-      # in a site's / theme's 'conf.nix' file
-      decls = secondStageStyxlib.themes.mergeConfs ([ lib.styxOptions ] ++ config);
-      root = parseDecls {
-        inherit decls;
-        optionFn = o: o.default or null;
-      };
-      secondStageStyxlib = styxlib.hydrate (_: _: { config = root; });
-
       themesData = map (theme: loadData { inherit theme lib; }) themes;
-      lib' = merge ([ secondStageStyxlib ] ++ (catAttrs "lib" themesData));
-      decls' = merge (catAttrs "decls" themesData);
+      themeModules = catAttrs "module" themesData;
+      configModules = map (c: evalConfig.coerceModule c lib) config;
+      evaluated = evalConfig.eval {
+        inherit styxlib themeModules configModules;
+      };
+      conf' = evaluated.config;
+      lib' = merge ([ lib ] ++ (catAttrs "lib" themesData));
       files = catAttrs "files" themesData;
 
-      conf' =
-        let
-          theme = parseDecls {
-            decls = decls';
-            optionFn = o: o.default or null;
-          };
-          typeCheckResult = if theme != { } then typeCheck decls' theme else null;
-          merged = merge [
-            { inherit theme; }
-            root
-          ];
-        in
-        deepSeq typeCheckResult merged;
-
       env' = env // {
-        # always prefer explicitly specified values
         lib = env.lib or lib';
         conf = env.conf or conf';
         templates = env.templates or templates';
@@ -75,7 +40,6 @@ with styxlib.themes;
     {
       inherit files;
       lib = lib';
-      decls = decls';
       env = env';
       conf = conf';
       templates = templates';

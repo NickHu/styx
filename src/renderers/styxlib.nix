@@ -4,48 +4,27 @@
 }:
 let
   l = pkgs.lib // builtins;
+  markup = import ./styxlib/markup.nix { inherit pkgs parsers; };
 
-  styxOptions = import ./styxlib/styx-options.nix { inherit pkgs parsers; };
+  utils = import ./styxlib/utils.nix l;
+  proplist = import ./styxlib/proplist.nix l { inherit utils; };
 
-  res = l.makeExtensibleWithCustomName "_hydrate" (
-    self:
+  styxlib =
     l
     // {
-      hydrate = f: res._hydrate f;
-
-      config = throw ''
-        styxlib.config is only available after loading themes via styxlib.themes.load.
-      '';
-
-      inherit styxOptions;
+      inherit utils proplist markup;
 
       apps = import ./styxlib/apps.nix { inherit pkgs; };
 
       data = import ./styxlib/data.nix l pkgs {
-        inherit (self) utils proplist config;
+        inherit markup utils proplist;
       };
-      generation = import ./styxlib/generation.nix l pkgs {
-        inherit (self) utils;
-      };
-      pages = import ./styxlib/pages.nix l {
-        inherit (self) utils proplist;
-      };
-      template = import ./styxlib/template.nix l {
-        inherit (self) utils;
-      };
-      themes =
-        import ./styxlib/themes.nix l {
-          inherit (self) utils proplist conf;
-        }
-        // (import ./styxlib/load-themes.nix l pkgs self);
-      utils = import ./styxlib/utils.nix l;
-      proplist = import ./styxlib/proplist.nix l {
-        inherit (self) utils;
-      };
-      conf = import ./styxlib/conf.nix l pkgs {
-        inherit (self) utils;
-      };
-    }
-  );
+      generation = import ./styxlib/generation.nix l pkgs { inherit utils; };
+      pages = import ./styxlib/pages.nix l { inherit utils proplist; };
+      template = import ./styxlib/template.nix l { inherit utils; };
+      themes = import ./styxlib/themes.nix l;
+    };
+
+  themesWithLoad = styxlib.themes // (import ./styxlib/load-themes.nix l pkgs styxlib);
 in
-res.hydrate (_: _: { })
+styxlib // { themes = themesWithLoad; }
