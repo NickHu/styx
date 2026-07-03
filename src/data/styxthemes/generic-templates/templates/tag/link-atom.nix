@@ -1,9 +1,14 @@
-env: let
-  template = {templates, ...}: attrs:
-    templates.tag.link ({
+env:
+let
+  template =
+    { templates, ... }:
+    attrs:
+    templates.tag.link (
+      {
         rel = "alternate";
         type = "application/atom+xml";
       }
-      // attrs);
+      // attrs
+    );
 in
-  template env
+template env

@@ -1,5 +1,7 @@
-env: let
-  template = {lib, ...}:
+env:
+let
+  template =
+    { lib, ... }:
     lib.template.normalTemplate {
       content = ''
         <div>
@@ -9,4 +11,4 @@ env: let
       title = "404";
     };
 in
-  template env
+template env

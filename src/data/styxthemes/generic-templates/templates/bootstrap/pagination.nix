@@ -1,63 +1,64 @@
-env: let
-  template = {
-    lib,
-    templates,
-    ...
-  }: {
-    pages,
-    index,
-    pagesLimit ? null,
-  }:
-    with lib; let
-      prevHref =
-        if (index > 1)
-        then templates.url (elemAt pages (index - 2))
-        else "#";
-      nextHref =
-        if (index < (length pages))
-        then templates.url (elemAt pages index)
-        else "#";
-      offset = let
-        minLimit = pagesLimit / 2;
-        maxLimit = (length pages) - minLimit;
-      in
-        if pagesLimit == null
-        then 0
-        else if index < minLimit
-        then 0
-        else if index > maxLimit
-        then (length pages) - pagesLimit
-        else index - minLimit - 1;
-      pages' =
-        if pagesLimit != null
-        then take pagesLimit (drop offset pages)
-        else pages;
+env:
+let
+  template =
+    {
+      lib,
+      templates,
+      ...
+    }:
+    {
+      pages,
+      index,
+      pagesLimit ? null,
+    }:
+    with lib;
+    let
+      prevHref = if (index > 1) then templates.url (elemAt pages (index - 2)) else "#";
+      nextHref = if (index < (length pages)) then templates.url (elemAt pages index) else "#";
+      offset =
+        let
+          minLimit = pagesLimit / 2;
+          maxLimit = (length pages) - minLimit;
+        in
+        if pagesLimit == null then
+          0
+        else if index < minLimit then
+          0
+        else if index > maxLimit then
+          (length pages) - pagesLimit
+        else
+          index - minLimit - 1;
+      pages' = if pagesLimit != null then take pagesLimit (drop offset pages) else pages;
     in
-      optionalString ((length pages) > 1) ''
-        <nav aria-label="Page navigation" class="pagination">
-        <ul class="pagination">
-        <li${optionalString (index == 1) " ${lib.template.htmlAttr "class" "disabled"}"}>
-        <a ${lib.template.htmlAttr "href" prevHref} aria-label="Previous">
-        <span aria-hidden="true">&laquo;</span>
-        </a>
-        </li>
-        ${concatStringsSep "\n" (imap (
-            i: page: let
-              i' = i + offset;
-            in ''
-              <li${optionalString (i' == index) " ${lib.template.htmlAttr "class" "active"}"}>${templates.tag.ilink {
-                to = page;
-                content = toString i';
-              }}</li>''
-          )
-          pages')}
-        <li${optionalString (index == (length pages)) " ${lib.template.htmlAttr "class" "disabled"}"}>
-        <a ${lib.template.htmlAttr "href" nextHref} aria-label="Next">
-        <span aria-hidden="true">&raquo;</span>
-        </a>
-        </li>
-        </ul>
-        </nav>
-      '';
+    optionalString ((length pages) > 1) ''
+      <nav aria-label="Page navigation" class="pagination">
+      <ul class="pagination">
+      <li${optionalString (index == 1) " ${lib.template.htmlAttr "class" "disabled"}"}>
+      <a ${lib.template.htmlAttr "href" prevHref} aria-label="Previous">
+      <span aria-hidden="true">&laquo;</span>
+      </a>
+      </li>
+      ${concatStringsSep "\n" (
+        imap (
+          i: page:
+          let
+            i' = i + offset;
+          in
+          "<li${optionalString (i' == index) " ${lib.template.htmlAttr "class" "active"}"}>${
+            templates.tag.ilink {
+              to = page;
+              content = toString i';
+            }
+          }</li>"
+        ) pages'
+      )}
+      <li${optionalString (index == (length pages)) " ${lib.template.htmlAttr "class" "disabled"}"}>
+      <a ${lib.template.htmlAttr "href" nextHref} aria-label="Next">
+      <span aria-hidden="true">&raquo;</span>
+      </a>
+      </li>
+      </ul>
+      </nav>
+    '';
 in
-  template env
+template env

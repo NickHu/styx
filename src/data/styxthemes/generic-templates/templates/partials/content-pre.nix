@@ -1,4 +1,5 @@
-env: let
+env:
+let
   template = env: page: "";
 in
-  template env
+template env

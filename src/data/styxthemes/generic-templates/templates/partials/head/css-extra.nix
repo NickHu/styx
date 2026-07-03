@@ -1,21 +1,23 @@
 /*
-This template allow to add custom css file per page attribute set.
-If a page defines a `extraCSS` attribute, its contents will be loaded here
+  This template allow to add custom css file per page attribute set.
+  If a page defines a `extraCSS` attribute, its contents will be loaded here
 
-extraCSS should be a list of attribute set in the followong format:
+  extraCSS should be a list of attribute set in the followong format:
 
-  [ { href = "..."; } ]
+    [ { href = "..."; } ]
 
-Any extra attribute to the list will be added as a html attribute to the link tag
+  Any extra attribute to the list will be added as a html attribute to the link tag
 */
-env: let
-  template = {
-    lib,
-    templates,
-    ...
-  }: {page}:
+env:
+let
+  template =
+    {
+      lib,
+      templates,
+      ...
+    }:
+    { page }:
     with lib;
-      optionalString (page ? extraCSS)
-      (lib.template.mapTemplate templates.tag.link-css page.extraCSS);
+    optionalString (page ? extraCSS) (lib.template.mapTemplate templates.tag.link-css page.extraCSS);
 in
-  template env
+template env

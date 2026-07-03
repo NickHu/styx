@@ -1,7 +1,7 @@
 /*
-The layout wraps every page's rendered content (see `page/full.nix`) in the
-site's HTML shell. `env` carries the merged configuration/library/templates,
-`content` is the string returned by the page's own template.
+  The layout wraps every page's rendered content (see `page/full.nix`) in the
+  site's HTML shell. `env` carries the merged configuration/library/templates,
+  `content` is the string returned by the page's own template.
 */
 env: content: ''
   <!DOCTYPE html>

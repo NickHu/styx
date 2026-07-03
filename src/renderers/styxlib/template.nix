@@ -1,35 +1,29 @@
 # Template functions
-lib: styxlib:
-with lib;
-rec {
+lib: styxlib: with lib; rec {
   processBlocks = blocks: {
-      content = mapTemplate (b: b.content) blocks;
-      extraJS = flatten (catAttrs "extraJS" blocks);
-      extraCSS = flatten (catAttrs "extraCSS" blocks);
-    };
+    content = mapTemplate (b: b.content) blocks;
+    extraJS = flatten (catAttrs "extraJS" blocks);
+    extraCSS = flatten (catAttrs "extraCSS" blocks);
+  };
 
-  htmlAttr = attrName: value: let
-      value' =
-        if isList value
-        then concatStringsSep " " value
-        else value;
-    in ''${attrName}="${value'}"'';
+  htmlAttr =
+    attrName: value:
+    let
+      value' = if isList value then concatStringsSep " " value else value;
+    in
+    ''${attrName}="${value'}"'';
 
   htmlAttrs = s: concatStringsSep " " (mapAttrsToList htmlAttr s);
 
-  escapeHTML = replaceStrings ["<" ">" "\"" "&"] ["&lt;" "&gt;" "&quot;" "&amp;"];
+  escapeHTML = replaceStrings [ "<" ">" "\"" "&" ] [ "&lt;" "&gt;" "&quot;" "&amp;" ];
 
-  normalTemplate = f: p: let
-      content =
-        if isFunction f
-        then f p
-        else f;
-      contentSet =
-        if isAttrs content
-        then content
-        else {inherit content;};
+  normalTemplate =
+    f: p:
+    let
+      content = if isFunction f then f p else f;
+      contentSet = if isAttrs content then content else { inherit content; };
     in
-      p // contentSet;
+    p // contentSet;
 
   mapTemplate = concatMapStringsSep "\n";
 
@@ -41,17 +35,16 @@ rec {
 
   isEven = a: (mod a 2) == 0;
 
-  parseDate = date: let
+  parseDate =
+    date:
+    let
       year = default (substring 0 4 date) "1970";
       month = default (substring 5 2 date) "01";
       day = default (substring 8 2 date) "01";
       hour = default (substring 11 2 date) "00";
       minut = default (substring 14 2 date) "00";
       second = default (substring 17 2 date) "00";
-      default = x: default:
-        if (x == "")
-        then default
-        else x;
+      default = x: default: if (x == "") then default else x;
       monthConv = {
         "01" = {
           b = "Jan";
@@ -102,13 +95,14 @@ rec {
           B = "December";
         };
       };
-      doNotPad = x: let
-        m = builtins.match "^0+([0-9]+)$" x;
-      in
-        if m != null
-        then elemAt m 0
-        else x;
-    in rec {
+      doNotPad =
+        x:
+        let
+          m = builtins.match "^0+([0-9]+)$" x;
+        in
+        if m != null then elemAt m 0 else x;
+    in
+    rec {
       # shortcuts
       date = {
         num = "${YYYY}-${MM}-${DD}";

@@ -1,12 +1,16 @@
-env: let
-  template = {
-    lib,
-    conf,
-    ...
-  }:
+env:
+let
+  template =
+    {
+      lib,
+      conf,
+      ...
+    }:
     with lib;
-      {page, ...}: ''
-        <title>${page.title}${optionalString (hasAttrByPath ["theme" "site" "title"] conf) " - ${conf.theme.site.title}"}</title>
-      '';
+    { page, ... }: ''
+      <title>${page.title}${
+        optionalString (hasAttrByPath [ "theme" "site" "title" ] conf) " - ${conf.theme.site.title}"
+      }</title>
+    '';
 in
-  template env
+template env

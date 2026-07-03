@@ -1,64 +1,76 @@
 /*
-  -----------------------------------------------------------------------------
-   Init
+    -----------------------------------------------------------------------------
+     Init
 
-   Initialization of Styx, should not be edited
------------------------------------------------------------------------------
+     Initialization of Styx, should not be edited
+  -----------------------------------------------------------------------------
 */
 {
   pkgs,
   styxlib,
-  styxthemes ? {},
+  styxthemes ? { },
   sampleData ? null,
-  extraConf ? {},
-}: rec {
+  extraConf ? { },
+}:
+rec {
   /*
-    -----------------------------------------------------------------------------
-     Setup
+      -----------------------------------------------------------------------------
+       Setup
 
-     This section setup required variables
-  -----------------------------------------------------------------------------
+       This section setup required variables
+    -----------------------------------------------------------------------------
   */
 
   loaded = styxlib.themes.load {
     lib = styxlib;
 
     # Used configuration
-    config = [./conf.nix extraConf];
+    config = [
+      ./conf.nix
+      extraConf
+    ];
 
     # Loaded themes
-    themes = [../.];
+    themes = [ ../. ];
 
     # Environment propagated to templates
-    env = {inherit data pages;};
+    env = { inherit data pages; };
   };
 
   # Propagating initialized data
-  inherit (loaded) conf files templates env lib;
+  inherit (loaded)
+    conf
+    files
+    templates
+    env
+    lib
+    ;
 
   /*
-    -----------------------------------------------------------------------------
-     Data
+      -----------------------------------------------------------------------------
+       Data
 
-     This section declares the data used by the site
-  -----------------------------------------------------------------------------
+       This section declares the data used by the site
+    -----------------------------------------------------------------------------
   */
 
   data = {
-    navbar = with pages; [theme basic starter];
+    navbar = with pages; [
+      theme
+      basic
+      starter
+    ];
   };
 
   /*
+      -----------------------------------------------------------------------------
+       Pages
+
+       This section declares the pages that will be generated
     -----------------------------------------------------------------------------
-     Pages
-
-     This section declares the pages that will be generated
-  -----------------------------------------------------------------------------
   */
 
-  /*
-  http://getbootstrap.com/getting-started/#examples
-  */
+  # http://getbootstrap.com/getting-started/#examples
 
   pages = rec {
     basic = {
@@ -90,19 +102,15 @@
   };
 
   /*
+      -----------------------------------------------------------------------------
+       Site
+
     -----------------------------------------------------------------------------
-     Site
-
-  -----------------------------------------------------------------------------
   */
 
-  /*
-  Converting the pages attribute set to a list
-  */
-  pageList = lib.generation.pagesToList {inherit pages;};
+  # Converting the pages attribute set to a list
+  pageList = lib.generation.pagesToList { inherit pages; };
 
-  /*
-  Generating the site
-  */
-  site = lib.generation.mkSite {inherit files pageList;};
+  # Generating the site
+  site = lib.generation.mkSite { inherit files pageList; };
 }

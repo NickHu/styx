@@ -1,9 +1,14 @@
-env: let
-  template = {templates, ...}: attrs:
-    templates.tag.link ({
+env:
+let
+  template =
+    { templates, ... }:
+    attrs:
+    templates.tag.link (
+      {
         rel = "stylesheet";
         type = "text/css";
       }
-      // attrs);
+      // attrs
+    );
 in
-  template env
+template env

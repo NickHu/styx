@@ -1,7 +1,10 @@
-env: let
-  template = {templates, ...}: args:
+env:
+let
+  template =
+    { templates, ... }:
+    args:
     (templates.partials.head.feed args)
     + (templates.partials.head.css args)
     + (templates.partials.head.title-post-extra args);
 in
-  template env
+template env

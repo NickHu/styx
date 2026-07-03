@@ -1,4 +1,5 @@
-env: let
+env:
+let
   doctypes = {
     html4 = ''
       <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
@@ -13,6 +14,6 @@ env: let
         "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
     '';
   };
-  template = {conf, ...}: doctypes."${conf.theme.html.doctype}";
+  template = { conf, ... }: doctypes."${conf.theme.html.doctype}";
 in
-  template env
+template env

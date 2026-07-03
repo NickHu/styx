@@ -1,5 +1,6 @@
-env: let
-  template = {templates, ...}: args: ''
+env:
+let
+  template = { templates, ... }: args: ''
     <head>
     ${
       templates.partials.head.title-pre args
@@ -8,4 +9,4 @@ env: let
     }</head>
   '';
 in
-  template env
+template env

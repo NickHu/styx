@@ -1,5 +1,8 @@
-env: let
-  template = {templates, ...}: args:
+env:
+let
+  template =
+    { templates, ... }:
+    args:
     templates.lib.css.bootstrap
     + templates.lib.css.font-awesome
     + templates.lib.css.highlightjs
@@ -7,4 +10,4 @@ env: let
     + (templates.partials.head.css-custom args)
     + (templates.partials.head.css-extra args);
 in
-  template env
+template env

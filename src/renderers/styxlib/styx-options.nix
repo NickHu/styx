@@ -1,11 +1,16 @@
-{ pkgs, parsers }: let
+{ pkgs, parsers }:
+let
   l = pkgs.lib // builtins;
-in {
+in
+{
   lib.data = {
     markup = {
       asciidoc = {
         extensions = l.mkOption {
-          default = ["adoc" "asciidoc"];
+          default = [
+            "adoc"
+            "asciidoc"
+          ];
           type = with l.types; listOf str;
           description = "Supported extensions for asciidoctor files.";
         };
@@ -22,7 +27,11 @@ in {
       };
       markdown = {
         extensions = l.mkOption {
-          default = ["md" "mdown" "markdown"];
+          default = [
+            "md"
+            "mdown"
+            "markdown"
+          ];
           type = with l.types; listOf str;
           description = "Supported extensions for markdown files.";
         };

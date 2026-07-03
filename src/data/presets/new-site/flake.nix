@@ -8,34 +8,42 @@
     styx.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-    styx,
-    ...
-  }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+      styx,
+      ...
+    }:
     flake-utils.lib.eachDefaultSystem (
-      system: let
-        pkgs = import nixpkgs {inherit system;};
+      system:
+      let
+        pkgs = import nixpkgs { inherit system; };
         styxlib = styx.lib.${system};
         styxthemes = styx.legacyPackages.${system}.styxthemes;
 
-        mkSite = extraConf:
+        mkSite =
+          extraConf:
           (import ./site.nix {
-            inherit pkgs styxlib styxthemes extraConf;
-          })
-          .site;
+            inherit
+              pkgs
+              styxlib
+              styxthemes
+              extraConf
+              ;
+          }).site;
 
         previewHost = "127.0.0.1";
         previewPort = 8080;
-      in {
+      in
+      {
         packages = {
           # the "real" site, built with the `siteUrl` set in conf.nix
-          default = mkSite {};
+          default = mkSite { };
           # the same site, but with `siteUrl` overridden so relative links
           # resolve correctly when browsing it locally (see `apps.serve`)
-          preview = mkSite {siteUrl = "http://${previewHost}:${toString previewPort}";};
+          preview = mkSite { siteUrl = "http://${previewHost}:${toString previewPort}"; };
         };
 
         checks.default = self.packages.${system}.default;
@@ -57,10 +65,13 @@
         };
 
         devShells.default = pkgs.mkShell {
-          packages = [pkgs.caddy pkgs.lychee];
+          packages = [
+            pkgs.caddy
+            pkgs.lychee
+          ];
         };
 
-        formatter = pkgs.alejandra;
+        formatter = pkgs.nixfmt;
       }
     );
 }

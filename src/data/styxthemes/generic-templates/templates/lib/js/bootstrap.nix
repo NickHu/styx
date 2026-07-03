@@ -1,17 +1,21 @@
-env: let
-  template = {
-    conf,
-    lib,
-    templates,
-    ...
-  }:
-    with lib; let
+env:
+let
+  template =
+    {
+      conf,
+      lib,
+      templates,
+      ...
+    }:
+    with lib;
+    let
       cnf = conf.theme.lib.bootstrap;
     in
-      optionalString cnf.enable
-      (templates.tag.script {
+    optionalString cnf.enable (
+      templates.tag.script {
         src = "//maxcdn.bootstrapcdn.com/bootstrap/${cnf.version}/js/bootstrap.min.js";
         crossorigin = "anonymous";
-      });
+      }
+    );
 in
-  template env
+template env
