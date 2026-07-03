@@ -13,12 +13,8 @@ let
     }:
     with lib;
     let
-      dataWidth = optionalString (width != null) (
-        " " + lib.htmlAttr "data-width" (toString width)
-      );
-      dataHeight = optionalString (height != null) (
-        " " + lib.htmlAttr "data-height" (toString height)
-      );
+      dataWidth = optionalString (width != null) (" " + lib.htmlAttr "data-width" (toString width));
+      dataHeight = optionalString (height != null) (" " + lib.htmlAttr "data-height" (toString height));
     in
     ''
       <a class="twitter-timeline"${dataWidth + dataHeight} href="https://twitter.com/${user}">Tweets by ${user}</a>

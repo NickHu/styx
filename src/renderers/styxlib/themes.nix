@@ -1,5 +1,6 @@
 # Theme loading and configuration (nixpkgs lib.evalModules).
-lib: nixpkgs: { utils, importApply }:
+lib: nixpkgs:
+{ utils, importApply }:
 with lib;
 with utils;
 let
@@ -36,11 +37,7 @@ let
           config args
         else
           config;
-      isModule =
-        raw ? options
-        || raw ? imports
-        || raw ? _file
-        || (raw ? config && isAttrs raw.config);
+      isModule = raw ? options || raw ? imports || raw ? _file || (raw ? config && isAttrs raw.config);
     in
     if isModule then raw else { config = raw; };
 
@@ -80,7 +77,8 @@ let
     in
     cleanup (f [ dir ] dir);
 
-  findInTheme = theme: f:
+  findInTheme =
+    theme: f:
     let
       path = theme + "/${f}";
     in

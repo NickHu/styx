@@ -1,5 +1,10 @@
 # Data loading, pages, templates, and site output (internal helpers in utils).
-lib: nixpkgs: { utils, markup, importApply }:
+lib: nixpkgs:
+{
+  utils,
+  markup,
+  importApply,
+}:
 with lib;
 with utils;
 let
@@ -230,17 +235,21 @@ rec {
         named = foldl' (
           acc: entry:
           if entry ? _attrName then
-            acc // {
+            acc
+            // {
               "${entry._attrName}" = extraArgs // (removeAttrs entry [ "_attrName" ]) // (pageFn entry);
             }
           else
             acc
         ) { } entries;
       in
-      mkPages ({
-        inherit list;
-        pages = list;
-      } // named);
+      mkPages (
+        {
+          inherit list;
+          pages = list;
+        }
+        // named
+      );
 
     mkPages =
       { pages, ... }@args:
@@ -502,7 +511,12 @@ rec {
           inherit themes config;
           env = (siteBody loaded) // extraEnv;
         };
-        inherit (loaded) conf files templates lib;
+        inherit (loaded)
+          conf
+          files
+          templates
+          lib
+          ;
         env = loaded.env;
         data = (siteBody loaded).data or { };
         pages = (siteBody loaded).pages;

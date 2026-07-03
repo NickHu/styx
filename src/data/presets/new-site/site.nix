@@ -1,4 +1,9 @@
-{ pkgs, styxlib, styxthemes ? { }, extraConf ? { } }:
+{
+  pkgs,
+  styxlib,
+  styxthemes ? { },
+  extraConf ? { },
+}:
 styxlib.mkSitePackage {
   inherit styxlib;
   themes = [
