@@ -1,7 +1,7 @@
 # themes
-lib:
+lib: { utils }:
 with lib;
-with (import ./utils.nix lib);
+with utils;
 let
   fetchTemplateDir =
     dir:
@@ -24,7 +24,11 @@ let
     in
     cleanup (f [ dir ] dir);
 
-  findInTheme = t: f: if dirContains t.path f then t.path + "/${f}" else null;
+  findInTheme = theme: f:
+    let
+      path = theme + "/${f}";
+    in
+    if pathExists path then path else null;
 in
 {
   loadData =
@@ -33,11 +37,11 @@ in
       lib,
     }:
     let
-      confFile = findInTheme { path = theme; } "conf.nix";
-      libFile = findInTheme { path = theme; } "lib.nix";
-      filesDir = findInTheme { path = theme; } "files";
-      templatesDir = findInTheme { path = theme; } "templates";
-      exampleFile = findInTheme { path = theme; } "example/site.nix";
+      confFile = findInTheme theme "conf.nix";
+      libFile = findInTheme theme "lib.nix";
+      filesDir = findInTheme theme "files";
+      templatesDir = findInTheme theme "templates";
+      exampleFile = findInTheme theme "example/site.nix";
       arg = { inherit lib; };
       meta = importApply (theme + "/meta.nix") arg;
     in

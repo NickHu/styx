@@ -1,7 +1,6 @@
 # Theme loading and configuration (nixpkgs lib.evalModules).
 lib: nixpkgs: styxlib:
 with lib;
-with styxlib.utils;
 with styxlib.themes;
 let
   evalConfig = import ./eval-config.nix lib nixpkgs;

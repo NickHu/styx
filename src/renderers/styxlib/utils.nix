@@ -27,13 +27,6 @@ lib: with lib; {
     else
       head matches;
 
-  chunksOf =
-    k:
-    let
-      f = ys: xs: if xs == [ ] then ys else f (ys ++ [ (take k xs) ]) (drop k xs);
-    in
-    f [ ];
-
   sortBy =
     attribute: order:
     sort (
@@ -45,22 +38,6 @@ lib: with lib; {
       else
         abort "Sort order must be 'asc' or 'dsc'"
     );
-
-  dirContains =
-    dir: path:
-    let
-      pathArray = filter (x: x != "") (splitString "/" path);
-      loop =
-        base: path:
-        let
-          contents = readDir base;
-        in
-        if hasAttrByPath [ (head path) ] contents then
-          if length path > 1 then loop (base + "/${head path}") (tail path) else true
-        else
-          false;
-    in
-    loop dir pathArray;
 
   setToList =
     s:
@@ -78,8 +55,6 @@ lib: with lib; {
         ) (attrNames set);
     in
     flatten (f [ ] s);
-
-  isPath = x: (!isAttrs x) && types.path.check x;
 
   importApply =
     file: arg:

@@ -1,7 +1,7 @@
 # Page functions
-lib: styxlib:
+lib: { utils }:
 with lib;
-with styxlib.utils;
+with utils;
 rec {
   mkSplitPagePath =
     {
@@ -10,26 +10,6 @@ rec {
       post ? ".html",
     }:
     if index == 1 then "${pre}${post}" else "${pre}-${toString index}${post}";
-
-  mkSplitCustom =
-    {
-      data,
-      pageFn,
-    }:
-    let
-      loop =
-        index: data: pages:
-        let
-          index' = index + 1;
-          inherit ((pageFn index (head data))) itemsNb;
-          items = take itemsNb data;
-          pages' = pages ++ [ ((removeAttrs (pageFn index data) [ "itemsNb" ]) // { inherit index items; }) ];
-          data' = drop itemsNb data;
-        in
-        if data == [ ] then pages else loop index' data' pages';
-      pages = loop 1 data [ ];
-    in
-    map (p: p // { inherit pages; }) pages;
 
   mkSplit =
     {
@@ -44,9 +24,6 @@ rec {
         "itemsPerPage"
         "data"
       ];
-    in
-    mkSplitCustom {
-      inherit data;
       pageFn =
         index: data:
         extraArgs
@@ -57,7 +34,22 @@ rec {
           };
           itemsNb = itemsPerPage;
         };
-    };
+      loop =
+        index: data: pages:
+        let
+          index' = index + 1;
+          inherit ((pageFn index (head data))) itemsNb;
+          items = take itemsNb data;
+          page = (removeAttrs (pageFn index data) [ "itemsNb" ]) // {
+            inherit index items;
+          };
+          pages' = pages ++ [ page ];
+          data' = drop itemsNb data;
+        in
+        if data == [ ] then pages else loop index' data' pages';
+      pages = loop 1 data [ ];
+    in
+    map (p: p // { inherit pages; }) pages;
 
   mkPageList =
     {
