@@ -1,13 +1,15 @@
 == Site Generation
 
-Site generation consists of a call to link:library.html#lib.generation.mkSite[`mkSite`], and the preparation of its arguments.
+Most sites use link:library.html#lib.generation.mkSitePackage[`mkSitePackage`], which loads themes, builds `pageList`, and calls `mkSite`.
+
+For manual control, prepare a `pageList` and call link:library.html#lib.generation.mkSite[`mkSite`] directly.
 
 [source, nix]
 .Standard call to mkSite
 ----
-pageList = pagesToList { inherit pages; }; # <1>
+pageList = lib.generation.pagesToList { inherit pages; }; # <1>
 
-site = mkSite { inherit conf files pageList; } # <2>
+site = lib.generation.mkSite { inherit files pageList; } # <2>
 ----
 
 <1> Convert the pages attribute set to a list of pages.
@@ -20,7 +22,7 @@ A typical example is setting a default layout to every page set that do not decl
 [source, nix]
 .Setting a default layout to every page set
 ----
-pageList = lib.pagesToList {
+pageList = lib.generation.pagesToList {
   inherit pages;
   default.layout = templates.layout;
 };

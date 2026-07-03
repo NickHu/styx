@@ -13,45 +13,30 @@ this function; the site template provides that wiring.
 [source, nix]
 .Hello world!
 ----
-{
-  pkgs,
-  styxlib,
-  styxthemes ? {},
-  extraConf ? {},
-}: rec { # <1>
-
-  loaded = styxlib.themes.load { # <2>
-    lib = styxlib;
-    config = [ ./conf.nix extraConf ];
-    themes = [ styxthemes.generic-templates ];
-    env = { inherit data pages pkgs; };
-  };
-
-  inherit (loaded) conf files templates env lib; # <3>
-
-  data = {};
-
-  pages = {
-    index = { # <4>
+{ pkgs, styxlib, styxthemes ? {}, extraConf ? {} }:
+styxlib.generation.mkSitePackage { # <1>
+  inherit styxlib;
+  themes = [ styxthemes.generic-templates ]; # <2>
+  config = [ ./conf.nix extraConf ];
+  extraEnv = { inherit pkgs; };
+  body = loaded: { # <3>
+    data = {};
+    pages.index = { # <4>
       title    = "Styx example page";
       content  = "<p>Hello world!</p>"; # <5>
       path     = "/index.html"; # <6>
-      template = templates.page.full; # <7>
-      layout   = templates.layout; # <8>
+      template = loaded.templates.page.full; # <7>
+      layout   = loaded.templates.layout; # <8>
     };
   };
-
-  pageList = lib.generation.pagesToList { inherit pages; };
-  site = lib.generation.mkSite { inherit files pageList; }; # <9>
-
 }
 ----
 
-<1> `site.nix` is a function. Its arguments are supplied by the site's
-    `flake.nix`: `pkgs` from nixpkgs, `styxlib` from the styx flake's `lib`
-    output, and `styxthemes` from `styx.legacyPackages.<system>.styxthemes`.
-<2> Themes and configuration are loaded with `styxlib.themes.load`.
-<3> The loaded theme provides `conf`, `files`, `templates`, `env`, and `lib`.
+<1> `site.nix` is a function returning a site derivation via `mkSitePackage`.
+    Its arguments are supplied by the site's `flake.nix`: `pkgs`, `styxlib`, and
+    `styxthemes`.
+<2> Themes are paths or packages from the styx theme set.
+<3> `body` receives the loaded theme context and returns `data` and `pages`.
 <4> Pages are declared in the `pages` attribute set. Here `index` is the only
     page generated.
 <5> Page content. Data loaders usually populate this attribute; here it is set
@@ -59,7 +44,6 @@ this function; the site template provides that wiring.
 <6> The URL path of the generated page.
 <7> The page template from the loaded theme.
 <8> The page layout from the loaded theme.
-<9> `mkSite` turns the page list into a store path containing the static site.
 
 Build and preview the site from the site directory:
 
@@ -145,38 +129,30 @@ This section is the basic setup of styx, it should not be changed and used as is
 
 
 [[site.nix-themes]]
-==== Themes
+==== Themes and site output
 
-The theme section is responsible for loading themes assets (configuration, library, static files, and templates).
-
-Themes are detailed in the <<Themes>> section.
+Most sites use link:library.html#lib.generation.mkSitePackage[`mkSitePackage`], which loads themes, merges configuration, builds `pageList`, and calls `mkSite`.
 
 [source, nix]
-.Standard themes section
+.Standard site.nix with mkSitePackage
 ----
-  loaded = styxlib.themes.load { # <1>
-    lib = styxlib;
-
-    config = [ ./conf.nix extraConf ]; # <2>
-
-    themes = [ # <3>
-      styxthemes.generic-templates
-      ./themes/my-theme
-    ];
-
-    env = { inherit data pages pkgs; }; # <4>
+styxlib.generation.mkSitePackage {
+  inherit styxlib;
+  config = [ ./conf.nix extraConf ];
+  themes = [ styxthemes.generic-templates ./themes/my-theme ];
+  extraEnv = { inherit pkgs; };
+  body = loaded: rec {
+    data = { ... };
+    pages = { ... };
   };
-
-  inherit (loaded) conf files templates env lib; # <5>
+}
 ----
 
-<1> Load themes and merge their configuration.
-<2> `config` is a list of configuration sources. Items at the end have higher priority. +
-    `extraConf` is typically passed from the site's `flake.nix` (for example to override `siteUrl` when serving locally).
-<3> `themes` is a list so it is possible to set multiple themes at the same time to <<Combining Themes,combine them>>. Themes at the beginning of the list have a lower priority. +
-Themes can be paths like `./themes/my-theme` or entries from the `styxthemes` set passed in by `flake.nix`.
-<4> Extra variables to add to the template environment.
-<5> Bring the loaded theme data into scope.
+`config` is a list of NixOS-style modules or plain `{ config = ...; }` attrsets. Items at the end have higher priority. +
+`extraConf` is typically passed from the site's `flake.nix` (for example to override `siteUrl` when serving locally). +
+`body` receives the loaded theme context (`loaded.templates`, `loaded.conf`, …) and returns `{ data, pages }`.
+
+Advanced sites can call `styxlib.themes.load` directly and wire `pagesToList` / `mkSite` themselves.
 
 [[site.nix-data]]
 ==== Data
@@ -238,45 +214,27 @@ IMPORTANT: `path` must start with a `/`.
 [[site.nix-site]]
 ==== Site
 
-This is the final part and shortest section of `site.nix`. This section consists of a call to link:library.html#lib.generation.mkSite[`mkSite`].
+`mkSitePackage` returns `{ site, conf, files, templates, pages, data, pageList, ... }`. Flake packages typically expose `.site` as the default output.
 
 [source, nix]
-.Standard mkSite section
+.Manual mkSite wiring (advanced)
 ----
-/*-----------------------------------------------------------------------------
-   Site
-
------------------------------------------------------------------------------*/
-
-  /* Converting the pages attribute set to a list
-  */
-  pageList = lib.generation.pagesToList { inherit pages; }; # <1>
-
-  site = lib.generation.mkSite { inherit files pageList; }
-}
+pageList = lib.generation.pagesToList { inherit pages; };
+site = lib.generation.mkSite { inherit files pageList; };
 ----
 
-<1> `mkSite` requires pages as a list, so `pagesToList` converts the pages attribute set to a list.
+`pagesToList` converts the pages attribute set to a flat list (expanding page groups from `mkPageList`).
 
-NOTE: `files` is generated in the theme section using enabled themes. +
-`inherit` is a shorthand for writing sets, `{ inherit a; }` is equivalent to `{ a = a; }`.
+NOTE: `files` comes from the loaded theme. +
+`inherit` is shorthand: `{ inherit a; }` is equivalent to `{ a = a; }`.
 
 ==== site.nix in a nutshell
 
 ====
-`site.nix` is a function:
-
-- taking `pkgs`, `styxlib`, and optionally `styxthemes` and `extraConf`.
-- returning an attribute set with a `site` attribute using the `lib.generation.mkSite` function.
+`site.nix` is a function taking `pkgs`, `styxlib`, and optionally `styxthemes` and `extraConf`. It returns an attribute set with a `site` derivation (via `mkSitePackage` or manual `mkSite`).
 ====
 
 ====
-`mkSite` is a function:
-
-- taking at least a list of pages to generate as the `pageList` argument.
-- evaluating each page set by evaluating `page.layout (page.template page)` and outputting the result in `page.path`.
-- returning a generated static site directory.
-
-NOTE: `mkSite` is a wrapper for nixpkgs `runCommand` function.
+`mkSite` evaluates each page with `page.layout (page.template page)` and writes the result to `page.path`, then copies theme static files into the output store path.
 ====
 

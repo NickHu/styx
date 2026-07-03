@@ -11,7 +11,7 @@ build it and preview it at <http://127.0.0.1:8080>.
 
 ## First steps
 
-Find the line saying `themes = [ ];` in `site.nix` and change it with the following to enable the `generic-templates` theme:
+Find the `themes = [` line in `site.nix` and enable `generic-templates`:
 
 ```nix
   themes = [
@@ -21,19 +21,18 @@ Find the line saying `themes = [ ];` in `site.nix` and change it with the follow
 
 The `generic-templates` theme provides a design and a set of templates, but there is no content to generate yet.
 
-So let's create a page! Pages are declared in the pages attribute set. We will start with a basic "Hello world!" index page:
+Add a "Hello world!" index page inside the `body` function:
 
 ```nix
-  pages = {
-
-    index = {
+  body = loaded: {
+    data = { };
+    pages.index = {
       title    = "Hello world!";
       content  = "<p>Hello world!</p>";
       path     = "/index.html";
-      template = templates.page.full;
-      layout   = templates.layout;
+      template = loaded.templates.page.full;
+      layout   = loaded.templates.layout;
     };
-
   };
 ```
 

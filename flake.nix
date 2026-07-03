@@ -68,7 +68,7 @@
           chmod -R u+w $out
           substituteInPlace $out/site.nix \
             --replace-fail 'themes = [' 'themes = [ styxthemes.generic-templates' \
-            --replace-fail 'pages = rec {' 'pages = rec { index = { path = "/index.html"; title = "Hello world!"; content = "<p>Hello world!</p>"; template = templates.page.full; layout = templates.layout; };'
+            --replace-fail 'pages = { };' 'pages = { index = { path = "/index.html"; title = "Hello world!"; content = "<p>Hello world!</p>"; template = loaded.templates.page.full; layout = loaded.templates.layout; }; };'
         '';
 
         new-site =

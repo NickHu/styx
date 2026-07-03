@@ -1,31 +1,14 @@
-= Styx Library Documentation
-:revnumber: @version@
-:description: Library documentation
-:toc: left
-:toclevels: 2
-:icons: font
-:sectanchors:
-:nofooter:
-:experimental:
-:source-highlighter: highlightjs
-:highlightjsdir: highlight
-
 [preface]
 == Preface
 
-The library contains various functions that can be used in `site.nix` and templates.
-
-This appendix is a frozen snapshot of the former auto-generated reference. The
-`documentedFunction` metadata and regeneration tooling were removed; update this
-file by hand when library APIs change. Several sections still describe removed
-APIs (taxonomies, multipages, `proplist`, and similar); prefer the narrative
-docs under link:./index.html[Styx documentation] for current behavior.
+The library contains functions used in `site.nix` and theme templates.
 
 Styx APIs live under namespaced modules (`lib.data`, `lib.pages`, `lib.generation`,
-`lib.template`, `lib.themes`, `lib.utils`). Nixpkgs helpers are also available
-at the top level (`lib.optionalString`, `lib.recursiveUpdate`, and so on).
+`lib.template`, `lib.themes`, `lib.utils`, `lib.apps`). Nixpkgs helpers are also
+available at the top level (`lib.optionalString`, `lib.recursiveUpdate`, and so on).
+
+For a narrative introduction, see link:./index.html[Styx documentation].
 
 :sectnums:
 
 include::library-generated.adoc[]
-

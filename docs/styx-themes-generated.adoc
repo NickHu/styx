@@ -2244,241 +2244,6 @@ templates.tag.script {
 ---
 
 
-[[generic-templates.templates.taxonomy.full]]
-==== templates.taxonomy.full
-
-Description:: Template displaying a taxonomy information.
-
-Arguments (Attribute Set)::
-`page`::: Taxonomy page generated with `mkTaxonomyPages` function. +
-Type: `page`. 
-
-Example:: 
-+
-[source, nix]
-.Code
-----
-pages.taxonomies = lib.data.mkTaxonomyPages {
-  data             = data.taxonomies.posts;
-  taxonomyTemplate = templates.taxonomy.full;
-  termTemplate     = templates.taxonomy.term.full;
-};
-
-----
-
-
-
-+
----
-+
-[source, nix]
-.Code
-----
-templates.taxonomy.full (lib.proplist.getProp "tags" (lib.data.mkTaxonomyData {
-  data = [
-    { tags = [ "foo" "bar" ]; path = "/a.html"; }
-    { tags = [ "foo" ];       path = "/b.html"; }
-    { category = [ "baz" ];   path = "/c.html"; }
-  ];
-  taxonomies = [ "tags" "category" ];
-}))
-
-----
-
-+
-[source, html]
-.Result
-----
-<h1>tags</h1>
-<ul>
-<li><a href="http://domain.org/tags/foo/index.html">foo</a> (2)</li>
-<li><a href="http://domain.org/tags/bar/index.html">bar</a> (1)</li>
-</ul>
-
-----
-
-
-
-
-
-
----
-
-
-[[generic-templates.templates.taxonomy.term.full]]
-==== templates.taxonomy.term.full
-
-Description:: Template displaying a taxonomy term information.
-
-Arguments (Attribute Set)::
-`page`::: Taxonomy term page generated with `mkTaxonomyPages` function. +
-Type: `page`. 
-
-Example:: 
-+
-[source, nix]
-.Code
-----
-pages.taxonomies = mkTaxonomyPages {
-  data             = data.taxonomies.posts;
-  taxonomyTemplate = templates.taxonomy.full;
-  termTemplate     = templates.taxonomy.term.full;
-};
-
-----
-
-
-
-+
----
-+
-[source, nix]
-.Code
-----
-templates.taxonomy.term.full {
-  taxonomy = "tags";
-  term = "foo";
-  values = lib.proplist.getValue "foo" (lib.proplist.getValue "tags" (lib.data.mkTaxonomyData {
-    data = [
-      { tags = [ "foo" "bar" ]; path = "/a.html"; title = "a"; }
-      { tags = [ "foo" ];       path = "/b.html"; title = "b";}
-      { category = [ "baz" ];   path = "/c.html"; title = "c";}
-    ];
-    taxonomies = [ "tags" "category" ];
-  }));
-}
-
-----
-
-+
-[source, html]
-.Result
-----
-<h1>tags: foo</h1>
-<ul>
-<li><a href="http://domain.org/b.html">b</a></li>
-<li><a href="http://domain.org/a.html">a</a></li>
-</ul>
-
-----
-
-
-
-
-
-
----
-
-
-[[generic-templates.templates.taxonomy.term-list]]
-==== templates.taxonomy.term-list
-
-Description:: Template transforming raw taxonomy data.
-
-Arguments (Standard)::
-`taxonomyData`::: Taxonomy data. +
-Type: `Taxonomy`. 
-
-Example:: 
-+
-[source, nix]
-.Code
-----
-templates.taxonomy.term-list (lib.proplist.getProp "tags" (lib.data.mkTaxonomyData {
-  data = [
-    { tags = [ "foo" "bar" ]; path = "/a.html"; }
-    { tags = [ "foo" ];       path = "/b.html"; }
-    { category = [ "baz" ];   path = "/c.html"; }
-  ];
-  taxonomies = [ "tags" "category" ];
-}))
-
-----
-
-+
-[source, nix]
-.Result
-----
-[ {
-  count = 2;
-  path = "/tags/foo/index.html";
-  taxonomy = "tags";
-  term = "foo";
-  values = [ {
-    path = "/b.html";
-    tags = [ "foo" ];
-  } {
-    path = "/a.html";
-    tags = [ "foo" "bar" ];
-  } ];
-} {
-  count = 1;
-  path = "/tags/bar/index.html";
-  taxonomy = "tags";
-  term = "bar";
-  values = [ {
-    path = "/a.html";
-    tags = [ "foo" "bar" ];
-  } ];
-} ]
-----
-
-
-
-
-
-
----
-
-
-[[generic-templates.templates.taxonomy.value.term-list]]
-==== templates.taxonomy.value.term-list
-
-Description:: Template generating a list of taxonomy terms data for a taxonomy value (page).
-
-Arguments (Attribute Set)::
-`page`::: Page attribute set. +
-Type: `Page`. 
-`taxonomy`::: Taxonomy name. +
-Type: `String`. 
-
-Example:: 
-+
-[source, nix]
-.Code
-----
-templates.taxonomy.value.term-list {
-  taxonomy = "tags";
-  page = {
-    tags = [ "foo" "bar" ];
-  };
-}
-
-----
-
-+
-[source, nix]
-.Result
-----
-[ {
-  path = "/tags/foo/index.html";
-  taxonomy = "tags";
-  term = "foo";
-} {
-  path = "/tags/bar/index.html";
-  taxonomy = "tags";
-  term = "bar";
-} ]
-----
-
-
-
-
-
-
----
-
-
 [[generic-templates.templates.url]]
 ==== templates.url
 
@@ -2551,100 +2316,39 @@ http://domain.org/about.html
   styxthemes ? {},
   sampleData ? null,
   extraConf ? {},
-}: rec {
-  /*
-    -----------------------------------------------------------------------------
-     Setup
-
-     This section setup required variables
-  -----------------------------------------------------------------------------
-  */
-
-  loaded = styxlib.themes.load {
-    lib = styxlib;
-
-    # Used configuration
-    config = [./conf.nix extraConf];
-
-    # Loaded themes
-    themes = [../.];
-
-    # Environment propagated to templates
-    env = {inherit data pages;};
-  };
-
-  # Propagating initialized data
-  inherit (loaded) conf files templates env lib;
-
-  /*
-    -----------------------------------------------------------------------------
-     Data
-
-     This section declares the data used by the site
-  -----------------------------------------------------------------------------
-  */
-
-  data = {
-    navbar = with pages; [theme basic starter];
-  };
-
-  /*
-    -----------------------------------------------------------------------------
-     Pages
-
-     This section declares the pages that will be generated
-  -----------------------------------------------------------------------------
-  */
-
-  /*
-  http://getbootstrap.com/getting-started/#examples
-  */
-
-  pages = rec {
-    basic = {
-      inherit (templates) layout;
-      template = templates.examples.basic;
-      path = "/basic.html";
-      # example of adding extra css / js to a page
-      #extraJS  = [ { src = "/pop.js"; crossorigin = "anonymous"; } ];
-      #extraCSS = [ { href = "/pop.css"; } ];
-      title = "Bootstrap 101 Template";
-      navbarTitle = "Basic";
+}:
+styxlib.generation.mkSitePackage {
+  inherit styxlib;
+  themes = [../.];
+  config = [./conf.nix extraConf];
+  body = loaded: rec {
+    data = {
+      navbar = with pages; [theme basic starter];
     };
-
-    starter = {
-      inherit (templates) layout;
-      template = templates.examples.starter;
-      path = "/starter.html";
-      title = "Starter Template for Bootstrap";
-      navbarTitle = "Starter";
-    };
-
-    theme = {
-      inherit (templates) layout;
-      template = templates.examples.theme;
-      path = "/index.html";
-      title = "Theme Template for Bootstrap";
-      navbarTitle = "Theme";
+    pages = {
+      basic = {
+        inherit (loaded.templates) layout;
+        template = loaded.templates.examples.basic;
+        path = "/basic.html";
+        title = "Bootstrap 101 Template";
+        navbarTitle = "Basic";
+      };
+      starter = {
+        inherit (loaded.templates) layout;
+        template = loaded.templates.examples.starter;
+        path = "/starter.html";
+        title = "Starter Template for Bootstrap";
+        navbarTitle = "Starter";
+      };
+      theme = {
+        inherit (loaded.templates) layout;
+        template = loaded.templates.examples.theme;
+        path = "/index.html";
+        title = "Theme Template for Bootstrap";
+        navbarTitle = "Theme";
+      };
     };
   };
-
-  /*
-    -----------------------------------------------------------------------------
-     Site
-
-  -----------------------------------------------------------------------------
-  */
-
-  /*
-  Converting the pages attribute set to a list
-  */
-  pageList = lib.generation.pagesToList {inherit pages;};
-
-  /*
-  Generating the site
-  */
-  site = lib.generation.mkSite {inherit files pageList;};
 }
 
 ----
