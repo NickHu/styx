@@ -6,20 +6,21 @@
 -----------------------------------------------------------------------------
 */
 {
-  pkgs ? import <nixpkgs> {},
+  pkgs,
+  styxlib,
+  styxthemes ? {},
   extraConf ? {},
 }: rec {
   /*
     -----------------------------------------------------------------------------
      Setup
 
-     This section setup required variables
+     This section sets up the configuration and the themes used by the site.
   -----------------------------------------------------------------------------
   */
 
-  styx = import pkgs.styx {
-    # Used packages
-    inherit pkgs;
+  loaded = styxlib.themes.load {
+    lib = styxlib;
 
     # Used configuration
     config = [
@@ -28,21 +29,19 @@
     ];
 
     # Loaded themes
-    themes = let
-      styx-themes = import pkgs.styx.themes;
-    in [
-      # Declare the used themes here, from a package:
-      #   styx-themes.generic-templates
-      # Or from a local path
+    themes = [
+      # Declare the used themes here, from styx's bundled theme set:
+      #   styxthemes.generic-templates
+      # or from a local path:
       #   ./themes/my-theme
     ];
 
     # Environment propagated to templates
-    env = {inherit data pages;};
+    env = {inherit data pages pkgs;};
   };
 
   # Propagating initialized data
-  inherit (styx.themes) conf files templates env lib;
+  inherit (loaded) conf files templates env lib;
 
   /*
     -----------------------------------------------------------------------------

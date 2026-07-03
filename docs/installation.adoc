@@ -1,36 +1,53 @@
 == Installation
 
-The only requirement for installing Styx is the link:http://nixos.org/nix/[Nix package manager].
-Refer to the link:http://nixos.org/nix/manual/#chap-installation[Nix installation instructions] to install Nix.
+The only requirement for using Styx is the link:http://nixos.org/nix/[Nix package
+manager] with flakes enabled. Refer to the
+link:http://nixos.org/nix/manual/#chap-installation[Nix installation instructions]
+to install Nix.
 
-It is possible to install styx with the following command:
+Styx is not installed as a global package anymore. You consume it as a flake
+input in your site's `flake.nix`, or run one-off commands against the published
+flake.
 
-[source, shell]
-----
-$ nix-env -i styx
-----
-
-For testing purposes, `nix-shell` can be used to start a temporary environment with styx:
-
-[source, shell]
-----
-$ nix-shell -p styx
-----
-
-====
-Newer versions of styx are available in the `nixpkgs-unstable` or `nixos-unstable` channel, but there might be some delay between a styx release and the time the channel get updated.
-
-It is possible to directly install the latest version of styx by running the following command:
+=== Try styx without creating a site
 
 [source, shell]
 ----
-$ nix-env -i $(nix-build https://github.com/styx-static/styx/archive/latest.tar.gz)
+$ nix run github:styx-static/styx#doc
 ----
 
-Or to start a nix-shell with the latest styx stable version:
+Build the manual:
 
 [source, shell]
 ----
-$ nix-shell -p $(nix-build https://github.com/styx-static/styx/archive/latest.tar.gz)
+$ nix build github:styx-static/styx#docs
 ----
-====
+
+Run the styx test suite (in a styx checkout or against the published flake):
+
+[source, shell]
+----
+$ nix flake check github:styx-static/styx
+----
+
+=== Create a new site
+
+[source, shell]
+----
+$ mkdir my-site && cd my-site
+$ nix flake init -t github:styx-static/styx#default
+$ nix build
+----
+
+The generated `readme.md` explains the next steps. See also <<Quick Start>>.
+
+=== Development shell
+
+When working on styx itself, enter the repository dev shell:
+
+[source, shell]
+----
+$ nix develop
+----
+
+This provides `asciidoctor`, `pandoc`, and `statix`.

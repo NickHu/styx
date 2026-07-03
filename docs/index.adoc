@@ -43,6 +43,9 @@ include::deployment.adoc[]
 
 include::cli.adoc[]
 
+NOTE: The <<Flake workflow>> chapter (formerly "Command line interface") describes
+how to build, serve, and deploy sites with Nix flakes.
+
 include::release-notes.adoc[]
 
 [appendix]

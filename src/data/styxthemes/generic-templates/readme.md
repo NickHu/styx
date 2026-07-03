@@ -4,10 +4,11 @@ This theme is intended to provide a basic framework to easily create sites with 
 
 ## Quickstart
 
-Previewing the example site provides a quick way to see the theme features.
+Build the example site from the styx flake check output, or from a site that
+uses this theme:
 
 ```
-$ styx preview --in $(nix-build -A styx-themes.generic-templates '<nixpkgs>')/example
+$ nix build github:styx-static/styx#checks.x86_64-linux.generic-templates-site
 ```
 
 ## Documentation

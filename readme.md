@@ -10,13 +10,13 @@ Among other things, Styx has the following features:
 
 ### Easy to get started
 
-Styx has no other dependency than Nix, if Nix is installed, run the following to use Styx:
+Styx has no dependency other than Nix. Create a new site from the flake template:
 
 ```bash
-# if using flakes
-$ nix shell github:styx-static/styx
-# otherwise
-$ nix-shell -p styx
+mkdir my-site && cd my-site
+nix flake init -t github:styx-static/styx#default
+nix build
+nix run .#serve
 ```
 
 ### Multiple content support
@@ -44,7 +44,13 @@ Every configuration declaration is type-checked, and documentation can be genera
 
 ### Linkcheck
 
-Linkcheck functionality is available out of the box, just run `styx linkcheck` to run [linkchecker](https://wummel.github.io/linkchecker/) on a site.
+Link checking is available via the site template's flake app:
+
+```bash
+nix run .#linkcheck
+```
+
+This serves the built site locally and runs [lychee](https://github.com/lycheeverse/lychee) against it.
 
 ### Themes
 
@@ -54,21 +60,26 @@ Official themes can also be used without any implicit installation, declaring th
 
 ### Documentation
 
-Styx embeds its complete documentation that can be viewed at any time by running `styx doc`.
-A very unique feature of Styx is that it can generate the documentation for a site with the `styx site-doc`.
+Styx ships a complete HTML manual as a flake package:
 
-## Install
-
-Use `nix profile` to install Styx, or `nix shell` to just test without installing it:
-
-```sh
-$ nix profile install github:styx-static/styx
-$ styx --help
+```bash
+nix run github:styx-static/styx#doc
 ```
 
+Theme and library reference pages can be regenerated for a loaded site with `nix run .#update-doc` in the styx repository.
+
+## Getting started
+
+Styx is consumed as a flake input in your site's `flake.nix`. Scaffold a new site with:
+
 ```sh
-$ nix shell github:styx-static/styx
-$ styx --help
+nix flake init -t github:styx-static/styx#default
+```
+
+Read the generated `readme.md` or open the manual:
+
+```sh
+nix run github:styx-static/styx#doc
 ```
 
 ## Examples
@@ -80,29 +91,27 @@ The official Styx site is an example of a basic software site with release news.
 
 See [site.nix](https://github.com/styx-static/styx-site/blob/master/site.nix) for implementation details.
 
+Bundled theme example sites are built by `nix flake check` in this repository (for example `checks.x86_64-linux.showcase-site`).
+
 ## As a Nix laboratory
 
 This repository is also a playground for more exotic nix usages and experiments:
 
-- [derivation.nix](./derivation.nix) is the main builder for styx, it builds the command line interface, the library, styx themes and the documentation.
+- The flake exposes `lib`, bundled themes, documentation, templates, and a `checks` output for CI.
 
 - Library functions and theme templates use special functions (`documentedFunction` and `documentedTemplate`) that allow automatically generating documentation and tests.
-  The code used to generate tests from `documentedFunctions` can be found in [tests/lib.nix](./tests/lib.nix).
   Library function tests can print a coverage or a report (with pretty printing):
 
       ```
-      $ system="$(nix eval --raw --expr "builtins.currentSystem" --impure)"
-      $ nix build .#"$system"._automation.tests.lib-report && cat ./result
-      $ nix build .#"$system"._automation.tests.lib-coverage && cat ./result
+      $ nix build .#checks.x86_64-linux.lib-report && cat ./result
+      $ nix build .#checks.x86_64-linux.lib-coverage && cat ./result
       ```
 
 - [src/renderers/docs/library.nix](./src/renderers/docs/library.nix) is a nix expression that generate an AsciiDoc documentation from the library `documentedFunction`s ([example](https://styx-static.github.io/styx-site/documentation/library.html)).
 
-- [src/renderers/docs/site.nix](./src/renderers/docs/site.nix) is a nix expressions that automatically generate documentation for styx themes, including configuration interface and templates ([example](https://styx-static.github.io/styx-site/documentation/styx-themes.html)). This feature is leveraged in the `styx site-doc` command to dynamically generate the documentation for a site according to used themes.
+- [src/renderers/docs/site.nix](./src/renderers/docs/site.nix) is a nix expressions that automatically generate documentation for styx themes, including configuration interface and templates ([example](https://styx-static.github.io/styx-site/documentation/styx-themes.html)). Regenerate the committed excerpts with `nix run .#update-doc`.
 
 - [parsimonious](https://github.com/erikrose/parsimonious) is used to do some [voodoo](src/app/parsers/) on markup files to turn them into valid nix expressions, so nix expressions can be embedded in Markdown or AsciiDoc.
-
-- [std](https://github.com/divnix/std) is a framework to keep bigger flake projects maintainable.
 
 ## Links
 

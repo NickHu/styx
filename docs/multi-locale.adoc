@@ -17,41 +17,20 @@ NOTE: Multi-locale sites make it easy to mix namespaces.
 
    Initialization of Styx, should not be edited
 -----------------------------------------------------------------------------*/
-{ styx
-, extraConf ? {}
-}@args:
+{ pkgs, styxlib, styxthemes ? {}, extraConf ? {} }: rec {
 
-rec {
-
-  /* Importing styx library
-  */
-  styxLib = import styx.lib styx;
-
-
-/*-----------------------------------------------------------------------------
-   Themes setup
-
------------------------------------------------------------------------------*/
-
-  /* Importing styx themes from styx
-  */
-  styx-themes = import styx.themes;
-
-  /* list the themes to load, paths or packages can be used
-     items at the end of the list have higher priority
-  */
   themes = [
-    styx-themes.hyde
+    styxthemes.hyde
   ];
-
 
   /* Loading the themes data for each locale
   */
-  themesData = styxLib.mapAttrs (name: value:              <1>
-    styxLib.themes.load {
-      inherit styxLib themes;
-      extraConf = [ ./conf.nix extraConf ];
-      extraEnv = value;
+  themesData = styxlib.mapAttrs (name: value:              <1>
+    styxlib.themes.load {
+      lib = styxlib;
+      inherit themes;
+      config = [ ./conf.nix extraConf ];
+      env = value;
     }
   ) locales;
 
@@ -153,13 +132,13 @@ rec {
 
   /* Generating the site
   */
-  site = lib.mkSite { inherit files pageList; };
+  site = lib.generation.mkSite { inherit files pageList; };
 
 }
 ----
 
 <1> Load the themes for each locale. The themes are loaded for each locale to ensure the theme `env` is using the correct `data` and `pages`.
-<2> Put locale independent theme data to the main scope. `env` is exported to the main namespace to ensure `styx site-doc` works well.
+<2> Put locale independent theme data to the main scope. `env` is exported to the main namespace so generated site documentation can inspect the loaded themes.
 <3> The English locale attribute set, holds the `pages` and `data` set and any other required attribute. This set attributes are merged in the theme `env`.
 <4> If the generic templates theme is used, `html.lang` in the environment will be used to set the `lang` attribute of the `html` tag ensuring the correct locale is declared.
 <5> Prefix is used on the `pages` set, and prepended to every pages path. For the default language, `prefix` should be an empty string.
@@ -183,11 +162,12 @@ This can be easily achieved by changing the theme loading section in the followi
 ----
   /* Loading the themes data for each locale
   */
-  themesData = styxLib.mapAttrs (name: value:
-    styxLib.themes.load {
-      inherit styxLib themes;
-      extraConf = [ ./conf."${name}".nix extraConf ];    <1>
-      extraEnv = value;
+  themesData = styxlib.mapAttrs (name: value:
+    styxlib.themes.load {
+      lib = styxlib;
+      inherit themes;
+      config = [ ./conf."${name}".nix extraConf ];    <1>
+      env = value;
     }
   ) locales;
 ----

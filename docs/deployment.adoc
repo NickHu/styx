@@ -2,41 +2,51 @@
 
 === GitHub pages
 
-Styx supports basic deployment to GitHub pages.
+Styx sites can publish to GitHub Pages using the `deploy-gh-pages` app included
+in the site template's `flake.nix`. It uses a git worktree so your main working
+tree is left untouched.
 
-This is a two step process:
+==== First deployment
 
-- first by preparing the repository to deploy on GitHub pages. (`deploy --init-gh-pages`)
-- then by updating that branch. (`deploy --gh-pages`)
-
-==== Initialization
-
-The `styx deploy --init-gh-pages` command will prepare the repository for GitHub deployment. This command will do the following:
-
-- create a `gh-pages` directory
-- add the `gh-pages` folder to `.gitignore`
-- clone the repository in the `gh-pages` folder
-- create a new empty `gh-pages` branch in the `gh-pages` folder
-
-==== Update the gh-pages branch
-
-The `styx deploy --gh-pages` command will build the site, and update the `gh-pages` folder with the generated static site and commit it to the `gh-pages` branch.
-
-Then changes can be pushed with the following commands:
+From your site repository (with a `flake.nix` that defines `apps.deploy-gh-pages`):
 
 [source, sh]
 ----
-$ (cd gh-pages && git push -u origin gh-pages) # <1>
-$ git push -u origin gh-pages # <2>
+$ nix run .#deploy-gh-pages
 ----
 
-<1> Push the `gh-pages` folder `gh-pages` branch to the root repository.
-<2> Push the root repository `gh-pages` branch to the remote repository.
+On the first run this will:
 
+- create a `gh-pages` git worktree at `./gh-pages` (orphan branch if the branch
+  does not exist yet)
+- build the site and commit it to that branch
+
+Add `gh-pages/` to `.gitignore` in your main branch if it is not already there.
+
+==== Updating the gh-pages branch
+
+Re-run the same command after changes:
+
+[source, sh]
+----
+$ nix run .#deploy-gh-pages
+----
+
+Each run rebuilds the site and creates a new commit on the `gh-pages` branch in
+the worktree. Push when ready:
+
+[source, sh]
+----
+$ git -C gh-pages push -u origin gh-pages
+----
+
+NOTE: The deploy app never pushes automatically. You control when changes go
+live.
 
 === NixOps
 
-link:http://nixos.org/nixops/[NixOps] is a deployment tool for NixOS configurations, and can be used to deploy styx sites.
+link:http://nixos.org/nixops/[NixOps] is a deployment tool for NixOS
+configurations, and can be used to deploy styx sites.
 
 [[nixops-example]]
 [source, nix]
@@ -60,7 +70,7 @@ link:http://nixos.org/nixops/[NixOps] is a deployment tool for NixOS configurati
         server {
           listen 80;
           location / {
-            root ${(pkgs.callPackage ./site.nix {}).site}; # <5>
+            root ${(builtins.getFlake (toString ./.)).packages.${pkgs.system}.default}; # <5>
           }
         }
       '';
@@ -73,7 +83,8 @@ link:http://nixos.org/nixops/[NixOps] is a deployment tool for NixOS configurati
 <2> Set up deployment information, for this example deploy on a VirtualBox machine.
 <3> Open port 80 on the `webserver` machine.
 <4> Nginx settings.
-<5> Set the Nginx root location to the styx site package. Remote repositories can be fetched with nixpkgs `fetch*` functions.
+<5> Set the Nginx root to the site's `packages.default` output. This assumes the
+    NixOps expression lives in the site repository next to `flake.nix`.
 
 NOTE: The NixOps link:http://nixos.org/nixops/manual/[manual] provides information about all the deployment options.
 
@@ -96,24 +107,18 @@ The deployement machine IP can be found with the `nixops info -d styx-site`.
 === Amazon S3 Bucket
 
 Amazon S3 buckets can be used to host static websites.
-The AWS CLI tool can be used in conjunction with styx to upload a styx website to a S3 bucket.
+The AWS CLI tool can be used in conjunction with a built styx site to upload to a S3 bucket.
 
 [source, sh]
 .Deploying a styx website to S3
 ----
 $ nix-shell -p awscli
 
-$ aws s3 sync $(styx store-path) s3://<bucket name>/
+$ aws s3 sync $(nix build --print-out-paths) s3://<bucket name>/
 ----
 
-Site url can also be specified with the `--site-url` flag.
-
-[source, sh]
-.Deploying a styx website to S3 using a custom site-url
-----
-$ nix-shell -p awscli
-$ aws s3 sync $(styx store-path --site-url "http://<bucket name>.s3-website-<region>.amazonaws.com") s3://<bucket name>/
-----
+Build with a custom `siteUrl` by adjusting `conf.nix` or the `extraConf` passed
+from `flake.nix` before running `nix build`.
 
 NOTE: For a S3 website to be world accessible, link:http://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteAccessPermissionsReqd.html[adjusting policies might be required].
 
@@ -122,3 +127,8 @@ NOTE: For a S3 website to be world accessible, link:http://docs.aws.amazon.com/A
 
 Styx does not yet provide a universal deployment method, but `rsync` can be used to deploy a Styx site to a remote server via ssh.
 
+[source, sh]
+----
+$ nix build
+$ rsync -av ./result/ user@server:/var/www/mysite/
+----

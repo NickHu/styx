@@ -1,153 +1,132 @@
-== Command line interface
+== Flake workflow
 
-The Styx provides a command line program `styx`.
+Styx is distributed as a Nix flake. There is no standalone `styx` binary anymore:
+building, testing, and most day-to-day tasks are ordinary Nix flake commands on
+your site (or on the styx flake itself).
 
-=== Generic flags
+=== The styx flake
 
-`styx --help`:: Display the help message.
-`styx --version`:: Display the version.
+The styx repository exposes the following outputs:
 
-=== Common flags
+`lib`::
+  The styx library (`styxlib`), passed into a site's `site.nix`.
 
-`--in DIR`:: Run the command in `DIR`.
-`--file FILE`:: Use `FILE` instead of `site.nix`.
-`--drafts`:: Process and render drafts.
-`--show-trace`:: Show debug output when styx command fails. (Nix flag)
-`--arg NAME VALUE`:: Pass an argument `NAME` to `site.nix` main function.
-`--argstr NAME VALUE`:: Pass a string argument `NAME` to `site.nix` main function.
-`-I PATH`:: Add `PATH` to to the Nix expression search path, useful to use custom versions of nixpkgs.
+`legacyPackages.<system>.styxthemes`::
+  The bundled theme package set. A site's `flake.nix` typically passes this into
+  `site.nix` as `styxthemes`.
 
-=== New
+`packages.<system>.docs`::
+  The styx manual as HTML.
 
-The `new` command is used to create a site or a theme.
+`templates.default`::
+  Scaffold for a new site (`nix flake init -t github:styx-static/styx#default`).
 
-==== Site
+`templates.sample-data`::
+  Sample pages and posts to merge into an existing site
+  (`nix flake init -t github:styx-static/styx#sample-data`).
 
-The `new site` command is used to create a new Styx site.
+`templates.theme`::
+  Scaffold for a new local theme
+  (`nix flake new themes/my-theme -t github:styx-static/styx#theme`).
 
-`styx new site NAME`:: Create a Styx site in `NAME` directory in current path.
-`styx new site NAME --in DIR`:: Create a Styx site in `DIR/NAME`.
+`checks.<system>.*`::
+  The styx test battery. Run everything with `nix flake check` in the styx
+  repository.
 
-==== Theme
+==== Reading the documentation
 
-The `new theme` command is used to create a new theme.
+[source, bash]
+----
+$ nix run github:styx-static/styx#doc
+----
 
-`styx new theme NAME --in DIR`:: Create a theme skeleton in `DIR/NAME`.
+This opens the built HTML manual in your default browser.
 
+To build the docs without opening them:
 
-=== Build
+[source, bash]
+----
+$ nix build github:styx-static/styx#docs
+$ xdg-open ./result/index.html
+----
 
-The `build` command is used to build a Styx site.
+=== A site's flake
 
-`styx build`:: Build the Styx site and write the output in the `public` directory.
-`styx build --out DIR`:: Build the nix site and write the output in the `DIR` directory.
+A styx site is a normal Nix flake. The template `flake.nix` wires `site.nix`
+into packages and apps.
 
-NOTE: The `nix-build` `--show-trace`, `--arg NAME VALUE`, `--argstr NAME VALUE` and `-I PATH` flags can be used with the `build` command.
+==== Building
 
-=== Store path
+`nix build`::
+  Build the site. The output is symlinked at `./result`.
 
-The `store-path` command is used to build a Styx site in the nix store and return the store path.
+`nix flake check`::
+  Build the site and fail if it does not build. Useful in CI.
 
-`styx store-path`:: Build the Styx site in the nix-store and return the full store path..
+==== Local preview and checks
 
-NOTE: The `nix-build` `--show-trace`, `--arg NAME VALUE`, `--argstr NAME VALUE` and `-I PATH` flags can be used with the `store-path` command.
+These apps are defined in the site template's `flake.nix` and use small
+helpers from `styx.lib.apps`:
 
-=== Preview
+`nix run .#serve`::
+  Build the site (with `siteUrl` overridden for local browsing) and serve it
+  with link:https://caddyserver.com/[Caddy] on `http://127.0.0.1:8080`.
 
-The `preview` command is used to launch a server that will listen on localhost (127.0.0.1) port 8080 by default. The preview command will override `conf.siteUrl` to preserve links.
+`nix run .#linkcheck`::
+  Build the site, serve it locally, and run link:https://github.com/lycheeverse/lychee[lychee] against it.
 
-The server can be stopped by pressing kbd:[Ctrl+C].
+NOTE: `serve` and `linkcheck` use Caddy with default settings. For production,
+use a properly configured web server instead.
 
-`styx preview`:: Start a preview server on 127.0.0.1:8080.
-`styx preview --port 9090`:: Start a preview server on 127.0.0.1:9090.
-`styx preview --port 9090 --drafts`:: Start a preview server on 127.0.0.1:9090 with drafts rendered.
+==== Deploying to GitHub Pages
 
-NOTE: Drafts are rendered only if the related logic is present in `site.nix`. The `--drafts` flag just make styx pass `extraConf.renderDrafts` as `true` to `site.nix`.
+`nix run .#deploy-gh-pages`::
+  Build the site and commit it to a `gh-pages` branch in a `./gh-pages` git
+  worktree. The worktree is created on first run and updated in place on later
+  runs.
 
-=== Preview theme
+Push manually when ready:
 
-The `preview-theme` command is used to launch a server that will listen on localhost (127.0.0.1) port 8080 by default and preview the selected theme bundled with styx.
+[source, bash]
+----
+$ git -C gh-pages push -u origin gh-pages
+----
 
-The server can be stopped by pressing kbd:[Ctrl+C].
+See the <<Deployment>> section for more detail.
 
-`styx preview-theme generic-templates`:: Start a preview server for the generic-templates theme on 127.0.0.1:8080.
-`styx preview-theme generic-templates --port 9090`:: Start a preview server for the generic-templates theme on 127.0.0.1:9090.
-`styx preview-theme generic-templates --port 9090 --drafts`:: Start a preview server for the generic-templates theme on 127.0.0.1:9090 with drafts rendered.
+==== Scaffolding
 
-=== Theme path
+`nix flake init -t github:styx-static/styx#default`::
+  Create a new site in the current directory.
 
-The `theme-path` command is used to print the store path a a theme from the `styx-themes`.
+`nix flake init -t github:styx-static/styx#sample-data`::
+  Add sample content under `data/sample/` in an existing site.
 
-`styx theme-path generic-templates`:: Print the store path for the generic-templates theme.
+`nix flake new themes/NAME -t github:styx-static/styx#theme`::
+  Create a new theme skeleton under `themes/NAME/`.
 
-=== Live
+=== Overriding configuration at build time
 
-The `live` command is similar to `preview`, with the unique difference that the site is automatically rebuilt when a change is made.
+Site configuration is merged from theme defaults, `conf.nix`, and an optional
+`extraConf` argument to `site.nix`. The site template's `flake.nix` uses
+`extraConf` to build a `preview` package with a local `siteUrl` for
+`apps.serve` and `apps.linkcheck`.
 
-The live mode should be quitted by pressing kbd:[q].
+To pass other overrides from the command line, rebuild with a custom Nix
+expression or adjust `flake.nix`. There is no `--drafts` or `--arg` wrapper
+anymore; pass `extraConf` directly when importing `site.nix`.
 
-`styx live`:: Start a live preview server on 127.0.0.1:8080.
-`styx live --port 9090`:: Start a live preview server on 127.0.0.1:9090.
-`styx live --port 9090 --drafts`:: Start a live preview server on 127.0.0.1:9090 with drafts rendered.
+=== Previewing bundled theme examples
 
-NOTE: The `live` mode does not automatically reload the browser.
+Each theme in `styxthemes` ships an example `site.nix`. During styx
+development these are exercised by `nix flake check`. To inspect a built
+example locally:
 
-WARNING: If the live mode is not quitted by pressing kbd:[q], there is a possibility that the server process will stay alive in background. The server process can be found by running `ps aux | grep caddy` and killed with the `kill` command.
+[source, bash]
+----
+$ nix build github:styx-static/styx#checks.x86_64-linux.showcase-site
+$ nix shell nixpkgs#python3 -c python3 -m http.server 8080 --directory ./result
+----
 
-=== Linkcheck
-
-Run link:https://wummel.github.io/linkchecker/[linkchecker] on the site. Checks if the liks are valid.
-
-`styx linkcheck`:: Check site links and print a report.
-
-
-=== Serve
-
-The `serve` command is used to build a site and launch a local server. This allow to check the site without having to deploy it.
-The server can be stopped by pressing kbd:[Ctrl+C].
-
-`styx serve`:: Will serve on the localhost on port `8080`.
-`styx-serve --port 9090`:: Will serve on the port `9090`.
-`styx serve --detach`:: Will serve on the localhost on port `8080` and run the server on background, process can be found by running `ps aux | grep caddy`.
-
-NOTE: The `nix-build` `--show-trace`, `--arg NAME VALUE`, `--argstr NAME VALUE` and `-I PATH` flags can be used with the `serve` command.
-
-NOTE: Styx uses the link:https://caddyserver.com/[caddy server], even if it is a performant server, `styx serve` launches it without any special settings. +
-For production environments it is recommended to use a carefully configured server over `styx serve`.
-
-
-=== Doc
-
-The `doc` command can be used to launch styx HTML documentation in the default browser (`$BROWSER`).
-
-`styx doc`:: Open the HTML help in the default browser.
-`BROWSER=firefox styx doc`:: Open the HTML help in firefox.
-
-NOTE: On macOS, run `BROWSER=open styx doc` to use the default browser.
-
-=== Site-doc
-
-The `site-doc` command can be used to generate and launch in the default browser a documentation for a styx site.
-
-`styx site-doc`:: Open the HTML help in the default browser.
-`BROWSER=firefox styx site-doc`:: Open the HTML help in firefox.
-
-NOTE: On macOS, run `BROWSER=open styx site-doc` to use the default browser.
-
-=== Gen-sample-data
-
-The `gen-sample-data` command can be used to generate sample data, useful for creating themes example sites.
-
-`styx gen-data`:: Generate sample data in `./data`.
-
-=== Deploy
-
-The `deploy` command is used to deploy a styx site on a remote server.
-Currently only GitHub pages are supported.
-
-For more details see the <<Deployment>> section.
-
-`styx deploy --init--gh-pages`:: Prepare a git repository to be able to deploy on GitHub pages.
-`styx deploy --gh-pages`:: Commit the Styx site in the current directory to the `gh-pages` branch in the `./gh-pages` folder.
-`styx deploy --gh-pages --in ./example --repo ./`:: Commit the Styx site in `./example` to the `gh-pages` branch in the `./gh-pages` folder.
-
+Replace `showcase-site` with any theme check name (`ghostwriter-site`,
+`hyde-site`, etc.).

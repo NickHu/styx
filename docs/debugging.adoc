@@ -1,12 +1,25 @@
 == Debugging
 
-The `nix-repl` utility can be used to debug a styx site. +
-It can be installed with `nix-env` or used in a temporary environment with `nix-repl`.
+The `nix repl` utility can be used to debug a styx site.
 
 [source, shell]
-.Starting nix-repl in a nix-shell
+.Starting nix repl from the styx repository
 ----
-$ nix-shell -p nix-repl --run 'nix repl "<nixpkgs>"'
+$ nix repl ./repl.nix
+----
+
+From a site directory, import `site.nix` with the same arguments your
+`flake.nix` passes:
+
+[source, shell]
+.Starting nix repl in a site directory
+----
+$ nix repl
+nix-repl> pkgs = import <nixpkgs> {}
+nix-repl> styx = builtins.getFlake "github:styx-static/styx"
+nix-repl> styxlib = styx.lib.${pkgs.system}
+nix-repl> styxthemes = styx.legacyPackages.${pkgs.system}.styxthemes
+nix-repl> site = import ./site.nix { inherit pkgs styxlib styxthemes; }
 ----
 
 
@@ -15,12 +28,8 @@ $ nix-shell -p nix-repl --run 'nix repl "<nixpkgs>"'
 [source]
 .Inspecting the `conf` configuration set
 ----
-$ nix repl "<nixpkgs>"
-
-nix-repl> site = callPackage (import ./site.nix) {}
-
 nix-repl> site.conf
-{ siteUrl = "https://styx-static.github.io/styx-theme-showcase"; theme = { ... }; }
+{ siteUrl = "https://example.com"; theme = { ... }; }
 ----
 
 === Using lib functions
@@ -28,11 +37,7 @@ nix-repl> site.conf
 [source]
 .Using parseDate
 ----
-$ nix repl "<nixpkgs>"
-
-nix-repl> site = callPackage (import ./site.nix) {}
-
-nix-repl> with (site.lib.parseDate "2016-05-18T12:40:21"); "${date.lit}, ${time}"
+nix-repl> with (site.lib.data.parseDate "2016-05-18T12:40:21"); "${date.lit}, ${time}"
 "18 May 2016, 12:40:21"
 ----
 
@@ -42,11 +47,12 @@ nix-repl> with (site.lib.parseDate "2016-05-18T12:40:21"); "${date.lit}, ${time}
 [source]
 .Rendering a page source
 ----
-$ nix repl "<nixpkgs>"
+nix-repl> showcase = import "${styxthemes.showcase}/example/site.nix" {
+             inherit pkgs styxlib styxthemes;
+             sampleData = ./data/sample;
+           }
 
-nix-repl> showcase = callPackage (import "${(import styx.themes).showcase}/example/site.nix") {}
-
-nix-repl> with showcase; lib.generatePage (pages.about // { layout = templates.layout; }) # <1>
+nix-repl> with showcase; lib.generation.generatePage (pages.about // { layout = templates.layout; }) # <1>
 "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>\n  <meta charset=\"utf-8\">...."
 
 nix-repl> with showcase; templates.layout (templates.page.full pages.about) # <2>
@@ -59,18 +65,21 @@ nix-repl> with showcase; templates.layout (templates.page.full pages.about) # <2
 
 === Building a site
 
-It is possible to generate the site in the nix store from `nix-repl`.
+It is possible to generate the site in the nix store from `nix repl`.
 
 [source]
 .Building a site
 ----
-$ nix-repl "<nixpkgs>"
-
-nix-repl> showcase = callPackage (import "${(import styx.themes).showcase}/example/site.nix") {}
-
-nix-repl> :b showcase.site
+nix-repl> :b site.site
 ...
 this derivation produced the following outputs:
-  out -> /nix/store/ak6h49a9h7asysv91nf31nhd5h7fgzhi-styx-site
+  out -> /nix/store/...-styx-site
 ----
 
+Or from the shell:
+
+[source, shell]
+----
+$ nix build
+$ ls ./result
+----

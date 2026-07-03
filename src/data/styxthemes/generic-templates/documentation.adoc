@@ -50,15 +50,16 @@ To override a template, just copy it to a custom theme and change it to your lik
 [source, bash]
 .Overriding the partials.content template
 ----
-$ styx new theme foo --in ./themes # <1>
+$ nix flake new themes/foo -t github:styx-static/styx#theme # <1>
 $ mkdir -p themes/foo/templates/partials/ # <2>
-$ cp $(styx theme-path generic-templates)/templates/partials/content.nix themes/foo/templates/partials/content.nix # <3>
+$ cp themes/generic-templates/templates/partials/content.nix themes/foo/templates/partials/content.nix # <3>
 ----
 
-<1> Creating a new `foo` theme.
+<1> Creating a new `foo` theme (after copying or symlinking the bundled
+    `generic-templates` theme into `themes/` if needed).
 <2> Create the `themes/foo/templates/partials/` directory.
 <3> Copy the generic-templates `templates/partials/content.nix` to the foo theme. +
-This code use the generic-templates bundled with styx, to use another version clone the link:https://github.com/styx-static/styx-theme-generic-templates[generic-templates repo], select the desired version, and copy the file from there.
+This example assumes `generic-templates` is available locally under `themes/`. You can also copy from the link:https://github.com/styx-static/styx-theme-generic-templates[generic-templates repository] at the desired version.
 
 NOTE: Every template of this theme use the `template.documentedTemplate` function that allow to generate template documentation.
 
@@ -66,7 +67,7 @@ NOTE: Every template of this theme use the `template.documentedTemplate` functio
 .Combining generic-templates and my-theme
 ----
 themes = [
-  styx-themes.generic-templates
+  styxthemes.generic-templates
   ./themes/my-theme
 ];
 ----

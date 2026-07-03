@@ -5,7 +5,7 @@ Feel free to ask questions on the [issue tracker](https://github.com/styx-static
 
 ## Setting up a development environment
 
-Setting up a development environment requires [`nix`](https://nixos.org/nix/).
+Setting up a development environment requires [`nix`](https://nixos.org/nix/) with flakes enabled.
 
 ### Preparation
 
@@ -25,31 +25,46 @@ Enter the devshell:
 $ direnv allow || nix develop -c "$SHELL"
 ```
 
-### Styx
+### Running checks
 
-Running styx dev version:
+Run the full test battery:
 
 ```
-$ nix run . -- --version
+$ nix flake check
 ```
 
-Styx is just a shell script wrapping `nix-build`, the `--DEBUG` flag can be passed to see executed commands (`set -x`).
+Open the documentation:
+
+```
+$ nix run .#doc
+```
+
+Regenerate the committed theme/library doc excerpts after changing documented functions or themes:
+
+```
+$ nix run .#update-doc
+```
 
 ### Themes
 
-Previewing the dev version showcase theme example site:
+Build a bundled theme example site:
 
 ```
-$ nix run . -- preview-theme showcase
+$ nix build .#checks.x86_64-linux.showcase-site
 ```
 
 Loading the showcase example site in `nix repl`:
 
 ```
 $ nix repl ./repl.nix
-> themes = out.data.styxthemes
+> themes = out.legacyPackages.styxthemes
 
-nix-repl> site = import "${themes.showcase}"/example/site.nix {}
+nix-repl> site = import "${themes.showcase}/example/site.nix" {
+            pkgs = out.packages;
+            styxlib = out.lib;
+            styxthemes = themes;
+            sampleData = ./src/data/presets/sample-data/data/sample;
+          }
 
 nix-repl> site.conf
 { siteUrl = "https://styx-static.github.io/styx-theme-showcase"; theme = { ... }; }
@@ -60,5 +75,5 @@ nix-repl> site.conf
 Please run the tests before any commit:
 
 ```
-$ nix run .#run-tests
+$ nix flake check
 ```

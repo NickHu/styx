@@ -419,7 +419,10 @@ Default::
 -----------------------------------------------------------------------------
 */
 {
-  pkgs ? import <nixpkgs> {},
+  pkgs,
+  styxlib,
+  styxthemes,
+  sampleData ? null,
   extraConf ? {},
 }: rec {
   /*
@@ -430,18 +433,15 @@ Default::
   -----------------------------------------------------------------------------
   */
 
-  styx = import pkgs.styx {
-    # Used packages
-    inherit pkgs;
+  loaded = styxlib.themes.load {
+    lib = styxlib;
 
     # Used configuration
     config = [./conf.nix extraConf];
 
     # Loaded themes
-    themes = let
-      styx-themes = import pkgs.styx.themes;
-    in [
-      styx-themes.generic-templates
+    themes = [
+      styxthemes.generic-templates
       ../.
     ];
 
@@ -450,7 +450,7 @@ Default::
   };
 
   # Propagating initialized data
-  inherit (styx.themes) conf files templates env lib;
+  inherit (loaded) conf files templates env lib;
 
   /*
     -----------------------------------------------------------------------------
@@ -618,15 +618,16 @@ To override a template, just copy it to a custom theme and change it to your lik
 [source, bash]
 .Overriding the partials.content template
 ----
-$ styx new theme foo --in ./themes # <1>
+$ nix flake new themes/foo -t github:styx-static/styx#theme # <1>
 $ mkdir -p themes/foo/templates/partials/ # <2>
-$ cp $(styx theme-path generic-templates)/templates/partials/content.nix themes/foo/templates/partials/content.nix # <3>
+$ cp themes/generic-templates/templates/partials/content.nix themes/foo/templates/partials/content.nix # <3>
 ----
 
-<1> Creating a new `foo` theme.
+<1> Creating a new `foo` theme (after copying or symlinking the bundled
+    `generic-templates` theme into `themes/` if needed).
 <2> Create the `themes/foo/templates/partials/` directory.
 <3> Copy the generic-templates `templates/partials/content.nix` to the foo theme. +
-This code use the generic-templates bundled with styx, to use another version clone the link:https://github.com/styx-static/styx-theme-generic-templates[generic-templates repo], select the desired version, and copy the file from there.
+This example assumes `generic-templates` is available locally under `themes/`. You can also copy from the link:https://github.com/styx-static/styx-theme-generic-templates[generic-templates repository] at the desired version.
 
 NOTE: Every template of this theme use the `template.documentedTemplate` function that allow to generate template documentation.
 
@@ -634,7 +635,7 @@ NOTE: Every template of this theme use the `template.documentedTemplate` functio
 .Combining generic-templates and my-theme
 ----
 themes = [
-  styx-themes.generic-templates
+  styxthemes.generic-templates
   ./themes/my-theme
 ];
 ----
@@ -3089,9 +3090,12 @@ http://domain.org/about.html
 -----------------------------------------------------------------------------
 */
 {
-  pkgs ? import <nixpkgs> {},
+  pkgs,
+  styxlib,
+  styxthemes ? {},
+  sampleData ? null,
   extraConf ? {},
-} @ args: rec {
+}: rec {
   /*
     -----------------------------------------------------------------------------
      Setup
@@ -3100,9 +3104,8 @@ http://domain.org/about.html
   -----------------------------------------------------------------------------
   */
 
-  styx = import pkgs.styx {
-    # Used packages
-    inherit pkgs;
+  loaded = styxlib.themes.load {
+    lib = styxlib;
 
     # Used configuration
     config = [./conf.nix extraConf];
@@ -3115,7 +3118,7 @@ http://domain.org/about.html
   };
 
   # Propagating initialized data
-  inherit (styx.themes) conf files templates env lib;
+  inherit (loaded) conf files templates env lib;
 
   /*
     -----------------------------------------------------------------------------
@@ -3658,7 +3661,10 @@ null
 -----------------------------------------------------------------------------
 */
 {
-  pkgs ? import <nixpkgs> {},
+  pkgs,
+  styxlib,
+  styxthemes,
+  sampleData ? throw "sampleData path is required for theme example sites",
   extraConf ? {},
 }: rec {
   /*
@@ -3669,18 +3675,15 @@ null
   -----------------------------------------------------------------------------
   */
 
-  styx = import pkgs.styx {
-    # Used packages
-    inherit pkgs;
+  loaded = styxlib.themes.load {
+    lib = styxlib;
 
     # Used configuration
     config = [./conf.nix extraConf];
 
     # Loaded themes
-    themes = let
-      styx-themes = import pkgs.styx.themes;
-    in [
-      styx-themes.generic-templates
+    themes = [
+      styxthemes.generic-templates
       ../.
     ];
 
@@ -3689,7 +3692,7 @@ null
   };
 
   # Propagating initialized data
-  inherit (styx.themes) conf files templates env lib;
+  inherit (loaded) conf files templates env lib;
 
   /*
     -----------------------------------------------------------------------------
@@ -3703,13 +3706,13 @@ null
   with lib.lib; {
     # loading a single page
     about = loadFile {
-      file = "${pkgs.styx}/src/data/presets/sample-data/pages/about.md";
+      file = sampleData + /pages/about.md;
       inherit env;
     };
 
     # loading a list of contents
     posts = lib.utils.sortBy "date" "dsc" (loadDir {
-      dir = "${pkgs.styx}/src/data/presets/sample-data/posts";
+      dir = sampleData + /posts;
       inherit env;
     });
 
@@ -4046,7 +4049,10 @@ Default::
 -----------------------------------------------------------------------------
 */
 {
-  pkgs ? import <nixpkgs> {},
+  pkgs,
+  styxlib,
+  styxthemes,
+  sampleData ? throw "sampleData path is required for theme example sites",
   extraConf ? {},
 }: rec {
   /*
@@ -4057,18 +4063,15 @@ Default::
   -----------------------------------------------------------------------------
   */
 
-  styx = import pkgs.styx {
-    # Used packages
-    inherit pkgs;
+  loaded = styxlib.themes.load {
+    lib = styxlib;
 
     # Used configuration
     config = [./conf.nix extraConf];
 
     # Loaded themes
-    themes = let
-      styx-themes = import pkgs.styx.themes;
-    in [
-      styx-themes.generic-templates
+    themes = [
+      styxthemes.generic-templates
       ../.
     ];
 
@@ -4077,7 +4080,7 @@ Default::
   };
 
   # Propagating initialized data
-  inherit (styx.themes) conf files templates env lib;
+  inherit (loaded) conf files templates env lib;
 
   /*
     -----------------------------------------------------------------------------
@@ -4091,13 +4094,13 @@ Default::
   with lib.lib; {
     # loading a single page
     about = loadFile {
-      file = "${pkgs.styx}/src/data/presets/sample-data//pages/about.md";
+      file = sampleData + /pages/about.md;
       inherit env;
     };
 
     # loading a list of contents
     posts = lib.utils.sortBy "date" "dsc" (loadDir {
-      dir = "${pkgs.styx}/src/data/presets/sample-data/posts";
+      dir = sampleData + /posts;
       inherit env;
     });
 
@@ -4432,7 +4435,10 @@ Default::
 -----------------------------------------------------------------------------
 */
 {
-  pkgs ? import <nixpkgs> {},
+  pkgs,
+  styxlib,
+  styxthemes,
+  sampleData ? throw "sampleData path is required for theme example sites",
   extraConf ? {},
 }: rec {
   /*
@@ -4443,18 +4449,15 @@ Default::
   -----------------------------------------------------------------------------
   */
 
-  styx = import pkgs.styx {
-    # Used packages
-    inherit pkgs;
+  loaded = styxlib.themes.load {
+    lib = styxlib;
 
     # Used configuration
     config = [./conf.nix extraConf];
 
     # Loaded themes
-    themes = let
-      styx-themes = import pkgs.styx.themes;
-    in [
-      styx-themes.generic-templates
+    themes = [
+      styxthemes.generic-templates
       ../.
     ];
 
@@ -4463,7 +4466,7 @@ Default::
   };
 
   # Propagating initialized data
-  inherit (styx.themes) conf files templates env lib;
+  inherit (loaded) conf files templates env lib;
 
   /*
     -----------------------------------------------------------------------------
@@ -4483,13 +4486,13 @@ Default::
 
     # loading a single page
     about = loadFile {
-      file = "${pkgs.styx}/src/data/presets/sample-data/pages/about.md";
+      file = sampleData + /pages/about.md;
       inherit env;
     };
 
     # loading a list of contents
     posts = lib.utils.sortBy "date" "dsc" (loadDir {
-      dir = "${pkgs.styx}/src/data/presets/sample-data/posts";
+      dir = sampleData + /posts;
       inherit env;
     });
 
@@ -5333,7 +5336,10 @@ Default::
 -----------------------------------------------------------------------------
 */
 {
-  pkgs ? import <nixpkgs> {},
+  pkgs,
+  styxlib,
+  styxthemes,
+  sampleData ? null,
   extraConf ? {},
 }: rec {
   /*
@@ -5344,18 +5350,15 @@ Default::
   -----------------------------------------------------------------------------
   */
 
-  styx = import pkgs.styx {
-    # Used packages
-    inherit pkgs;
+  loaded = styxlib.themes.load {
+    lib = styxlib;
 
     # Used configuration
     config = [./conf.nix extraConf];
 
     # Loaded themes
-    themes = let
-      styx-themes = import pkgs.styx.themes;
-    in [
-      styx-themes.generic-templates
+    themes = [
+      styxthemes.generic-templates
       ../.
     ];
 
@@ -5364,7 +5367,7 @@ Default::
   };
 
   # Propagating initialized data
-  inherit (styx.themes) conf files templates env lib;
+  inherit (loaded) conf files templates env lib;
 
   /*
     -----------------------------------------------------------------------------
@@ -5665,7 +5668,10 @@ Default::
 -----------------------------------------------------------------------------
 */
 {
-  pkgs ? import <nixpkgs> {},
+  pkgs,
+  styxlib,
+  styxthemes,
+  sampleData ? throw "sampleData path is required for theme example sites",
   extraConf ? {},
 }: rec {
   /*
@@ -5676,18 +5682,15 @@ Default::
   -----------------------------------------------------------------------------
   */
 
-  styx = import pkgs.styx {
-    # Used packages
-    inherit pkgs;
+  loaded = styxlib.themes.load {
+    lib = styxlib;
 
     # Used configuration
     config = [./conf.nix extraConf];
 
     # Loaded themes
-    themes = let
-      styx-themes = import pkgs.styx.themes;
-    in [
-      styx-themes.generic-templates
+    themes = [
+      styxthemes.generic-templates
       ../.
     ];
 
@@ -5696,7 +5699,7 @@ Default::
   };
 
   # Propagating initialized data
-  inherit (styx.themes) conf files templates env lib;
+  inherit (loaded) conf files templates env lib;
 
   /*
     -----------------------------------------------------------------------------
@@ -5710,13 +5713,13 @@ Default::
   with lib.data; {
     # loading a single page
     about = loadFile {
-      file = "${pkgs.styx}/src/data/presets/sample-data/pages/about.md";
+      file = sampleData + /pages/about.md;
       inherit env;
     };
 
     # loading a list of contents
     posts = lib.utils.sortBy "date" "dsc" (loadDir {
-      dir = "${pkgs.styx}/src/data/presets/sample-data/posts";
+      dir = sampleData + /posts;
       inherit env;
     });
 

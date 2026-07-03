@@ -11,15 +11,15 @@ Styx themes that are part of the `styx-themes` package set are documented in the
 
 === Creating a new theme
 
-A new theme file structure can be created by running the `styx new theme` command.
+A new theme file structure can be created with the styx flake template:
 
 [source, sh]
 .Creating a new theme
 ----
-$ styx new theme my-theme --in ./themes
+$ nix flake new themes/my-theme -t github:styx-static/styx#theme
 ----
 
-This command will generate the following files in `./themes/my-theme`:
+This command will generate the following files in `themes/my-theme`:
 
 [source]
 ----
@@ -42,20 +42,15 @@ The theme's `conf.nix` *defines* the configuration interface, and the site's `co
 === Using themes
 
 Declaring used themes is done in the <<site.nix-themes,theme section>> of `site.nix`.
-Paths or packages can be used.
+Paths or packages from `styxthemes` can be used.
 
 [source, nix]
-.Using a local my-site theme and the generic-templates theme
+.Using a local my-theme and the generic-templates theme
 ----
-  styx-themes = import styx.themes;
-
-  /* list the themes to load, paths or packages can be used
-     items at the end of the list have higher priority
-  */
-  themes = [
-    styx-themes.generic-templates
-    ./themes/my-theme
-  ];
+    themes = [
+      styxthemes.generic-templates
+      ./themes/my-theme
+    ];
 ----
 
 NOTE: Items at the beginning of the `themes` list have lower priority.
@@ -174,12 +169,9 @@ Options can then be used in the site `conf.nix` in the same manner than non-type
 [source, bash]
 .Trying to build a site with type errors
 ----
-$ styx preview
+$ nix build
 error: The configuration option `theme.site.title' is not a string.
 (use ‘--show-trace’ to show detailed location information)
----
-Error: Site could not been built, fix the errors and run the command again.
-The '--show-trace' flag can be used to show debug information.
 ----
 
 

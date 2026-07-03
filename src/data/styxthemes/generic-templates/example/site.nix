@@ -6,9 +6,12 @@
 -----------------------------------------------------------------------------
 */
 {
-  pkgs ? import <nixpkgs> {},
+  pkgs,
+  styxlib,
+  styxthemes ? {},
+  sampleData ? null,
   extraConf ? {},
-} @ args: rec {
+}: rec {
   /*
     -----------------------------------------------------------------------------
      Setup
@@ -17,9 +20,8 @@
   -----------------------------------------------------------------------------
   */
 
-  styx = import pkgs.styx {
-    # Used packages
-    inherit pkgs;
+  loaded = styxlib.themes.load {
+    lib = styxlib;
 
     # Used configuration
     config = [./conf.nix extraConf];
@@ -32,7 +34,7 @@
   };
 
   # Propagating initialized data
-  inherit (styx.themes) conf files templates env lib;
+  inherit (loaded) conf files templates env lib;
 
   /*
     -----------------------------------------------------------------------------

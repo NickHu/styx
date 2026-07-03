@@ -6,52 +6,68 @@ It is recommended to read the link:http://nixos.org/nix/manual/#ch-expression-la
 
 === Hello world!
 
-Let's look at a very basic example of a styx site `site.nix` file.
+Let's look at a very basic example of a styx site `site.nix` file. A real site
+also needs a `flake.nix` that passes `pkgs`, `styxlib`, and `styxthemes` into
+this function; the site template provides that wiring.
 
 [source, nix]
 .Hello world!
 ----
-{ styx, ... }@args: # <1>
+{
+  pkgs,
+  styxlib,
+  styxthemes ? {},
+  extraConf ? {},
+}: rec { # <1>
 
-rec { # <2>
-
-  lib = import styx.lib styx; # <3>
-
-  index = { # <4>
-    layout   = template: "<html><body>${template}</body></html>"; # <5>
-    template = page: '' # <6>
-      <h1>Styx example page</h1>
-      ${page.content}
-    '';
-    content = "<p>Hello world!</p>"; # <7>
-    path    = "/index.html"; # <8>
+  loaded = styxlib.themes.load { # <2>
+    lib = styxlib;
+    config = [ ./conf.nix extraConf ];
+    themes = [ styxthemes.generic-templates ];
+    env = { inherit data pages pkgs; };
   };
 
-  site = lib.mkSite { pageList = [ index ]; }; # <9>
+  inherit (loaded) conf files templates env lib; # <3>
+
+  data = {};
+
+  pages = {
+    index = { # <4>
+      title    = "Styx example page";
+      content  = "<p>Hello world!</p>"; # <5>
+      path     = "/index.html"; # <6>
+      template = templates.page.full; # <7>
+      layout   = templates.layout; # <8>
+    };
+  };
+
+  pageList = lib.generation.pagesToList { inherit pages; };
+  site = lib.generation.mkSite { inherit files pageList; }; # <9>
 
 }
 ----
 
-<1> `site.nix` is a function written in the nix language. Nix functions have the `{ arg1 ? default, arg2, ..., argN, ... }: body` pattern. +
-The arguments of the function are the dependencies needed to build the site. +
-`@args` refers to the whole argument set.
-<2> `{` starts a set. `rec` makes the set recursive, meaning that attributes can refer to each other.
-<3> This imports the styx library in a `lib` attribute.
-<4> This declares an `index` attribute as an attribute set. An attribute set is a basic key-value structure. `index` will be the only page generated.
-<5> To generate a page, styx requires a few attributes to be set, namely `layout`, `template` and `path`. This line declares the `layout` attribute that is a function that takes the `template` argument and returns the page source. +
-`template:` form is different from the first point function head, this function use a simple parameter (Point one was using a deconstructed attribute set parameter).
-<6> This declares a `template` attribute. `template` is a function that takes the page attribute set, `page` (in this case as a parameter) and generates a result that will be passed to the `layout` function.
-<7> This declares a `content` attribute. This is not mandatory, and could have been integrated in the `template` key. But most of styx data fetchers will add a `content` attribute to the page set containing the fetched content.
-<8> This declares a `path` attribute. The `path` attribute is used to specify the path of the page to be generated.
-<9> This generates the site by using the library `mkSite` function, its parameter is an attribute set with the argument `pageList` being a list of the single `index` page.
+<1> `site.nix` is a function. Its arguments are supplied by the site's
+    `flake.nix`: `pkgs` from nixpkgs, `styxlib` from the styx flake's `lib`
+    output, and `styxthemes` from `styx.legacyPackages.<system>.styxthemes`.
+<2> Themes and configuration are loaded with `styxlib.themes.load`.
+<3> The loaded theme provides `conf`, `files`, `templates`, `env`, and `lib`.
+<4> Pages are declared in the `pages` attribute set. Here `index` is the only
+    page generated.
+<5> Page content. Data loaders usually populate this attribute; here it is set
+    inline.
+<6> The URL path of the generated page.
+<7> The page template from the loaded theme.
+<8> The page layout from the loaded theme.
+<9> `mkSite` turns the page list into a store path containing the static site.
 
-Everything is ready, the "Hello world!" site preview can be generated.
-
+Build and preview the site from the site directory:
 
 [source, sh]
 .Generating a preview of the "Hello world!" site
 ----
-$ styx preview
+$ nix build
+$ nix run .#serve
 ----
 
 
@@ -63,29 +79,30 @@ NOTE: Nix expression language is lazily evaluated, so infinite data structures a
 
 === Files
 
-In its simplest form, styx just needs a `site.nix` to generate a site like presented in the <<Hello world!>> example.
+In its simplest form, styx just needs a `site.nix` and a `flake.nix` to generate a site like presented in the <<Hello world!>> example.
 
-But the `styx new` command will generate a few more files for convenience.
+The `nix flake init -t github:styx-static/styx#default` template generates a few more files for convenience.
 
 [source]
 ----
-├── conf.nix    # <1>
-├── default.nix # <2>
+├── flake.nix   # <1>
+├── conf.nix    # <2>
 ├── readme.md   # <3>
 ├── site.nix    # <4>
 ├── data/       # <5>
 └── themes/     # <6>
 ----
 
-<1> `conf.nix` is the main configuration file, see <<Configuration>> for details.
-<2> `default.nix` is a file that can be used to build a styx file directly with `nix-build`.
+<1> `flake.nix` wires `site.nix` into `packages`, `checks`, and `apps` (`serve`,
+    `linkcheck`, `deploy-gh-pages`).
+<2> `conf.nix` is the main configuration file, see <<Configuration>> for details.
 <3> `readme.md` provides some basic information about how to start using styx.
 <4> `site.nix` is the main file for site generation, see <<site.nix,site.nix>> for details.
 <5> `data/` is an empty directory meant to hold site data.
 <6> `themes/` is an empty directory meant to hold custom themes.
 
 NOTE: The file structure of a styx site is totally free and can be changed according to needs. +
-It is even possible to change the name of `site.nix`. In that case the `--file` flag of the styx command can be used to specify the file name.
+What matters is that your `flake.nix` imports `site.nix` with the correct arguments.
 
 
 [[site.nix]]
@@ -118,18 +135,13 @@ This section is the basic setup of styx, it should not be changed and used as is
    Initialization of Styx, should not be edited
 -----------------------------------------------------------------------------*/
 
-{ styx
-, extraConf ? {}
-}@args:
-
-rec {
-
-  /* Styx library
-  */
-  styxLib = import styx.lib styx; <1>
+{
+  pkgs,
+  styxlib,
+  styxthemes ? {},
+  extraConf ? {},
+}: rec {
 ----
-
-<1> Load the styx library, library functions are documented in link:./library.html[library documentation].
 
 
 [[site.nix-themes]]
@@ -142,41 +154,29 @@ Themes are detailed in the <<Themes>> section.
 [source, nix]
 .Standard themes section
 ----
-/*-----------------------------------------------------------------------------
-   Theme setup
+  loaded = styxlib.themes.load { # <1>
+    lib = styxlib;
 
------------------------------------------------------------------------------*/
+    config = [ ./conf.nix extraConf ]; # <2>
 
-  /* Importing styx themes from styx
-  */
-  styx-themes = import styx.themes; # <1>
+    themes = [ # <3>
+      styxthemes.generic-templates
+      ./themes/my-theme
+    ];
 
-  /* list the themes to load, paths or packages can be used
-     items at the end of the list have higher priority
-  */
-  themes = [ # <2>
-    styx-themes.generic-templates
-  ];
-
-  /* Load the theme data
-  */
-  themeData = styxLib.themes.load {
-    inherit styxLib themes;
-    extraEnv = { inherit data pages; }; # <3>
-    extraConf = [ ./conf.nix extraConf ]; # <4>
+    env = { inherit data pages pkgs; }; # <4>
   };
 
-  /* Bring the theme data into scope
-  */
-  inherit (themeData) conf lib files templates env; # <5>
+  inherit (loaded) conf files templates env lib; # <5>
 ----
 
-<1> Importing the styx-themes.
-<2> `themes` is a list so it is possible to set multiple themes at the same time to <<Combining Themes,combine them>>. Themes at the beginning of the list have a lower priority. +
-Themes can be paths like `./themes/my-site` or packages from the `styx-themes` set.
-<3> Extra variables to add to the template environment.
-<4> Extra configuration sets to merge with the themes configurations, can be files or paths, head of the list have lower priority.
-<5> Bringing the `themeData` attributes in the scope.
+<1> Load themes and merge their configuration.
+<2> `config` is a list of configuration sources. Items at the end have higher priority. +
+    `extraConf` is typically passed from the site's `flake.nix` (for example to override `siteUrl` when serving locally).
+<3> `themes` is a list so it is possible to set multiple themes at the same time to <<Combining Themes,combine them>>. Themes at the beginning of the list have a lower priority. +
+Themes can be paths like `./themes/my-theme` or entries from the `styxthemes` set passed in by `flake.nix`.
+<4> Extra variables to add to the template environment.
+<5> Bring the loaded theme data into scope.
 
 [[site.nix-data]]
 ==== Data
@@ -195,7 +195,7 @@ The <<Data>> section explains in detail how to manage data.
 -----------------------------------------------------------------------------*/
 
   data = {
-    about = lib.loadFile { file = ./pages/about.md; inherit env; }; # <1>
+    about = lib.data.loadFile { file = ./pages/about.md; inherit env; }; # <1>
   };
 ----
 
@@ -250,9 +250,9 @@ This is the final part and shortest section of `site.nix`. This section consists
 
   /* Converting the pages attribute set to a list
   */
-  pageList = lib.pagesToList { inherit pages; }; # <1>
+  pageList = lib.generation.pagesToList { inherit pages; }; # <1>
 
-  site = lib.mkSite { inherit files pageList; }
+  site = lib.generation.mkSite { inherit files pageList; }
 }
 ----
 
@@ -266,8 +266,8 @@ NOTE: `files` is generated in the theme section using enabled themes. +
 ====
 `site.nix` is a function:
 
-- taking at least nixpkgs `lib`, `styx`, `runCommand` and `writetext` attributes.
-- returning an attribute set with a `site` attribute using the `mkSite` function.
+- taking `pkgs`, `styxlib`, and optionally `styxthemes` and `extraConf`.
+- returning an attribute set with a `site` attribute using the `lib.generation.mkSite` function.
 ====
 
 ====

@@ -6,7 +6,10 @@
 -----------------------------------------------------------------------------
 */
 {
-  pkgs ? import <nixpkgs> {},
+  pkgs,
+  styxlib,
+  styxthemes,
+  sampleData ? throw "sampleData path is required for theme example sites",
   extraConf ? {},
 }: rec {
   /*
@@ -17,18 +20,15 @@
   -----------------------------------------------------------------------------
   */
 
-  styx = import pkgs.styx {
-    # Used packages
-    inherit pkgs;
+  loaded = styxlib.themes.load {
+    lib = styxlib;
 
     # Used configuration
     config = [./conf.nix extraConf];
 
     # Loaded themes
-    themes = let
-      styx-themes = import pkgs.styx.themes;
-    in [
-      styx-themes.generic-templates
+    themes = [
+      styxthemes.generic-templates
       ../.
     ];
 
@@ -37,7 +37,7 @@
   };
 
   # Propagating initialized data
-  inherit (styx.themes) conf files templates env lib;
+  inherit (loaded) conf files templates env lib;
 
   /*
     -----------------------------------------------------------------------------
@@ -51,13 +51,13 @@
   with lib.data; {
     # loading a single page
     about = loadFile {
-      file = "${pkgs.styx}/src/data/presets/sample-data/pages/about.md";
+      file = sampleData + /pages/about.md;
       inherit env;
     };
 
     # loading a list of contents
     posts = lib.utils.sortBy "date" "dsc" (loadDir {
-      dir = "${pkgs.styx}/src/data/presets/sample-data/posts";
+      dir = sampleData + /posts;
       inherit env;
     });
 

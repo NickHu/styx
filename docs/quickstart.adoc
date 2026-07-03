@@ -1,36 +1,51 @@
 == Quick Start
 
-=== Preview a styx site
-
-The styx showcase theme example site can be previewed by the following command:
-
-[source, bash]
-----
-$ styx preview-theme showcase
-----
-
-This command downloads the showcase theme to the nix store, builds the site (also in the nix store) and launches the preview from there.
-
-The showcase example site will be accessible at link:http://127.0.0.1:8080[http://127.0.0.1:8080]. Check the posts as they provide some information about how styx works.
-
----
-
 === Create a new site
 
-To create a new site, the following set of commands can be used:
+[source, bash]
+----
+$ mkdir my-site && cd my-site
+$ nix flake init -t github:styx-static/styx#default # <1>
+$ nix build # <2>
+$ nix run .#serve # <3>
+----
+
+<1> Scaffold a new styx site in the current directory. This writes `flake.nix`,
+    `site.nix`, `conf.nix`, and a few supporting files.
+<2> Build the site. The output is symlinked at `./result`.
+<3> Build again (with a local `siteUrl`) and serve the site at
+    link:http://127.0.0.1:8080[http://127.0.0.1:8080]. Press kbd:[Ctrl+C] to stop.
+
+A `readme.md` in the new directory walks through enabling a theme and adding a
+first page. The styx manual is available with `nix run github:styx-static/styx#doc`.
+
+It is recommended to read the <<site.nix,site.nix>> section to understand how a
+site is structured.
+
+=== Add sample content
+
+To populate `data/sample/` with example pages and posts:
 
 [source, bash]
 ----
-$ styx new site my-site # <1>
-$ cd my-site # <2>
+$ nix flake init -t github:styx-static/styx#sample-data
 ----
 
-<1> Initialize a new styx site in the `my-site` directory.
-<2> Enter the `my-site` directory.
+Then wire the imported data into `site.nix` following the examples in the
+link:./styx-themes.html[themes documentation].
 
-A `readme.md` file will be available in the `my-site` directory giving basic instructions. Also the `styx doc` command will launch the documentation in a browser.
+=== Preview a bundled theme example
 
-It is recommended to read the <<sitenix,site.nix>> section of this documentation to get familiar with how `site.nix` is structured and works.
+Each official theme includes an example site. To build one locally:
 
-Each theme of the `styx-themes` set provides an example site with a `site.nix` that can be checked in the link:./styx-themes.html[themes documentation].
+[source, bash]
+----
+$ nix build github:styx-static/styx#checks.x86_64-linux.showcase-site
+$ nix shell nixpkgs#python3 -c python3 -m http.server 8080 --directory ./result
+----
 
+The showcase example will be accessible at link:http://127.0.0.1:8080[http://127.0.0.1:8080].
+Check the posts: they explain several styx features.
+
+Other theme examples are available as flake checks (`ghostwriter-site`,
+`hyde-site`, `nix-site`, etc.).

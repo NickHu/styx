@@ -1,11 +1,4 @@
-{ pkgs, styx, parsers }: let
-  callStyxSite = siteFnOrFile: let
-    call = l.customisation.callPackageWith (
-      pkgs.extend (_: _: {inherit styx;})
-    );
-  in
-    call siteFnOrFile;
-
+{ pkgs, parsers }: let
   l = pkgs.lib // builtins;
 
   styxOptions = import ./styxlib/styx-options.nix { inherit pkgs parsers; };
@@ -76,9 +69,11 @@
           'styxlib.hydrate (_: _: { config = evaledStyxConfig; })'
     '';
 
-    inherit styxOptions callStyxSite;
+    inherit styxOptions;
 
     lib = l;
+
+    apps = import ./styxlib/apps.nix { inherit pkgs; };
 
     data = import ./styxlib/data.nix l pkgs {
       inherit

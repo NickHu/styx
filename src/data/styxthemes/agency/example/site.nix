@@ -6,7 +6,10 @@
 -----------------------------------------------------------------------------
 */
 {
-  pkgs ? import <nixpkgs> {},
+  pkgs,
+  styxlib,
+  styxthemes,
+  sampleData ? null,
   extraConf ? {},
 }: rec {
   /*
@@ -17,18 +20,15 @@
   -----------------------------------------------------------------------------
   */
 
-  styx = import pkgs.styx {
-    # Used packages
-    inherit pkgs;
+  loaded = styxlib.themes.load {
+    lib = styxlib;
 
     # Used configuration
     config = [./conf.nix extraConf];
 
     # Loaded themes
-    themes = let
-      styx-themes = import pkgs.styx.themes;
-    in [
-      styx-themes.generic-templates
+    themes = [
+      styxthemes.generic-templates
       ../.
     ];
 
@@ -37,7 +37,7 @@
   };
 
   # Propagating initialized data
-  inherit (styx.themes) conf files templates env lib;
+  inherit (loaded) conf files templates env lib;
 
   /*
     -----------------------------------------------------------------------------

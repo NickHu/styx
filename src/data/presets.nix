@@ -9,4 +9,8 @@
     description = "Sample pages & posts";
     path = ./presets/sample-data;
   };
+  theme = {
+    description = "Minimal New Styx Theme";
+    path = ./presets/new-theme;
+  };
 }
