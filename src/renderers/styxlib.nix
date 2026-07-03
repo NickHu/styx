@@ -10,7 +10,8 @@ let
   utils = import ./styxlib/utils.nix l;
 
   build = import ./styxlib/build.nix l pkgs {
-    inherit markup utils importApply;
+    inherit markup utils;
+    inherit (utils) callImport;
   };
 
   themesCore = import ./styxlib/themes.nix l pkgs {

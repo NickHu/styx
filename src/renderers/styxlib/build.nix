@@ -3,7 +3,7 @@ lib: nixpkgs:
 {
   utils,
   markup,
-  importApply,
+  callImport,
 }:
 with lib;
 with utils;
@@ -34,7 +34,7 @@ let
         preferLocalBuild = true;
         allowSubstitutes = false;
       } (evaledMarkup."${markupType}".parser fileData.path);
-      data = importApply dataFn env;
+      data = callImport dataFn env;
     in
     mapAttrs (
       k: v:
@@ -62,7 +62,7 @@ let
         if elem fileData.ext evaledMarkupExts then
           parseMarkupFile { inherit fileData env; }
         else if fileData.ext == "nix" then
-          importApply fileData.path env
+          callImport fileData.path env
         else
           trace "Warning: File '${fileData.path}' is not in a supported file format and will be ignored." { };
     in

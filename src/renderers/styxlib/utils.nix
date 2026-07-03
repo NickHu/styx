@@ -1,5 +1,12 @@
 # utilities
 lib: with lib; {
+  callImport =
+    file: arg:
+    let
+      f = import file;
+    in
+    if isFunction f then f arg else f;
+
   find =
     criteria: list:
     let
