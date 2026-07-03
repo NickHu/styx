@@ -1,5 +1,5 @@
 { pkgs, styxlib, styxthemes ? { }, extraConf ? { } }:
-styxlib.generation.mkSitePackage {
+styxlib.mkSitePackage {
   inherit styxlib;
   themes = [
     # styxthemes.generic-templates

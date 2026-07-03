@@ -11,7 +11,7 @@ let
       <entry>
         <id>${templates.url page}</id>
         <title>${page.title}</title>
-        <updated>${(lib.template.parseDate page.date).T}</updated>
+        <updated>${(lib.parseDate page.date).T}</updated>
         <link href="${templates.url page}" rel="alternate" type="text/html"/>
         ${optionalString (page ? intro) ''
           <summary type="xhtml">

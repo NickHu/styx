@@ -23,10 +23,10 @@ let
           && elem item.path (map (p: p.path) currentPage.breadcrumbs)
         )
         || (currentPage != null && item ? path && currentPage.path == item.path);
-      active = optionalString (isCurrent item) (" " + lib.template.htmlAttr "class" "active");
+      active = optionalString (isCurrent item) (" " + lib.htmlAttr "class" "active");
       title = item.navbarTitle or item.title;
-      href = lib.template.htmlAttr "href" (templates.url (attrByPath [ "url" ] item item));
-      class = optionalString (item ? navbarClass) (" " + lib.template.htmlAttr "class" item.navbarClass);
+      href = lib.htmlAttr "href" (templates.url (attrByPath [ "url" ] item item));
+      class = optionalString (item ? navbarClass) (" " + lib.htmlAttr "class" item.navbarClass);
     in
     "<li${active}><a ${href}${class}>${title}</a></li>";
 in

@@ -1,5 +1,5 @@
-# Site build pipeline: data loading, pages, templates, and site output.
-lib: nixpkgs: { utils, markup }:
+# Data loading, pages, templates, and site output (internal helpers in utils).
+lib: nixpkgs: { utils, markup, importApply }:
 with lib;
 with utils;
 let
@@ -484,8 +484,7 @@ rec {
           acc ++ [ (recursiveUpdate default p) ]
       ) [ ] pages';
 
-    # Wrap theme loading + pageList + mkSite. `body` receives the loaded theme
-    # context and returns `{ data, pages, mkSiteArgs ? {} }`.
+    # context and returns `{ data, pages, pagesDefault ? {}, mkSiteArgs ? {} }`.
     mkSitePackage =
       {
         styxlib,
@@ -494,18 +493,24 @@ rec {
         body,
         extraEnv ? { },
       }:
+      let
+        siteBody = body;
+      in
       rec {
         loaded = styxlib.themes.load {
           lib = styxlib;
           inherit themes config;
-          env = (body loaded) // extraEnv;
+          env = (siteBody loaded) // extraEnv;
         };
         inherit (loaded) conf files templates lib;
         env = loaded.env;
-        data = (body loaded).data or { };
-        pages = (body loaded).pages;
-        pageList = pagesToList { inherit pages; };
-        site = mkSite ({ inherit files pageList; } // ((body loaded).mkSiteArgs or { }));
+        data = (siteBody loaded).data or { };
+        pages = (siteBody loaded).pages;
+        pageList = pagesToList {
+          inherit pages;
+          default = (siteBody loaded).pagesDefault or { };
+        };
+        site = mkSite ({ inherit files pageList; } // ((siteBody loaded).mkSiteArgs or { }));
       };
   };
 }

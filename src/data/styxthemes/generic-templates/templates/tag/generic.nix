@@ -14,7 +14,7 @@ let
     }@args:
     with lib;
     let
-      attrs = lib.template.htmlAttrs (
+      attrs = lib.htmlAttrs (
         removeAttrs args [
           "tag"
           "content"

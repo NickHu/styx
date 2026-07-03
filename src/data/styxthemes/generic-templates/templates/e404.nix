@@ -2,7 +2,7 @@ env:
 let
   template =
     { lib, ... }:
-    lib.template.normalTemplate {
+    lib.normalTemplate {
       content = ''
         <div>
           <h1>Page not found, Error 404</h1>

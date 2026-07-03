@@ -41,7 +41,7 @@ Page attribute sets are often augmented by various attributes or merged with dat
 
 NOTE: `mkSite` evaluates `page.layout (page.template page)` and outputs the result in `page.path` for every page in its `pageList` argument.
 
-TIP: As many pages tend to use the same layout, the `layout` attribute is usually set in one go to all templates in the "site" section with link:library.html#lib.pages.pagesToList[pagesToList] `default` parameter. +
+TIP: As many pages tend to use the same layout, the `layout` attribute is usually set in one go to all templates in the "site" section with link:library.html#lib.pagesToList[pagesToList] `default` parameter. +
 Usually, only pages that use a different layout explicitly declares it in `pages`. +
 The following examples will omit the `layout` attribute like often done in a normal `site.nix`.
 
@@ -102,12 +102,12 @@ Split pages refer to a list of data split though multiple similar pages.
 
 A common example of split page is a blog archive page, where the posts are listed through multiple pages.
 
-Split pages can be generated with link:library.html#lib.pages.mkSplit[mkSplit].
+Split pages can be generated with link:library.html#lib.mkSplit[mkSplit].
 
 [source, nix]
 .mkSplit example
 ----
-pages.archives = lib.pages.mkSplit {
+pages.archives = lib.mkSplit {
   basePath     = "/archives";
   template     = templates.archives;
   itemsPerPage = 5;
@@ -128,12 +128,12 @@ This is on purpose and is used in the previous example to set all the split page
 
 === Page lists from data
 
-For a directory of posts or other content, link:library.html#lib.pages.mkPageList[mkPageList] generates one page per data file.
+For a directory of posts or other content, link:library.html#lib.mkPageList[mkPageList] generates one page per data file.
 
 [source, nix]
 .Generating pages from loaded data
 ----
-pages.posts = lib.pages.mkPageList {
+pages.posts = lib.mkPageList {
   data     = data.posts;
   template = templates.post.full;
 };
@@ -150,7 +150,7 @@ Named entries are also created when `data` is an attribute set, so individual po
 .Using mkPageList list in a split page
 ----
 pages = {
-  index = lib.pages.mkSplit {
+  index = lib.mkSplit {
     title           = conf.theme.site.title;
     basePath        = "/index";
     itemsPerPage    = 10;
@@ -158,7 +158,7 @@ pages = {
     data            = pages.posts.list;
   };
 
-  posts = lib.pages.mkPageList {
+  posts = lib.mkPageList {
     data     = data.posts;
     template = templates.post.full;
   };

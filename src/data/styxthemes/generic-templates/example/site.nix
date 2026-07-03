@@ -5,7 +5,7 @@
   sampleData ? null,
   extraConf ? { },
 }:
-styxlib.generation.mkSitePackage {
+styxlib.mkSitePackage {
   inherit styxlib;
   themes = [ ../. ];
   config = [

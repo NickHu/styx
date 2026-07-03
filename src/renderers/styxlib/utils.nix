@@ -56,13 +56,6 @@ lib: with lib; {
     in
     flatten (f [ ] s);
 
-  importApply =
-    file: arg:
-    let
-      f = import file;
-    in
-    if isFunction f then f arg else f;
-
   prettyNix =
     expr:
     let

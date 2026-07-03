@@ -18,7 +18,7 @@ let
       <li class="dropdown">
       <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">${title}${caret}</a>
       <ul class="dropdown-menu">
-      ${lib.template.mapTemplate (item: templates.bootstrap.navbar.nav_item { inherit item; }) items}
+      ${lib.mapTemplate (item: templates.bootstrap.navbar.nav_item { inherit item; }) items}
       </ul>
       </li>'';
 in

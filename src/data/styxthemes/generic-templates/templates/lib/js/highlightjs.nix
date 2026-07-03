@@ -16,7 +16,7 @@ let
         src = "//cdnjs.cloudflare.com/ajax/libs/highlight.js/${cnf.version}/highlight.min.js";
         crossorigin = "anonymous";
       })
-      + (lib.template.mapTemplate (
+      + (lib.mapTemplate (
         lang:
         (templates.tag.script {
           src = "//cdnjs.cloudflare.com/ajax/libs/highlight.js/${cnf.version}/languages/${lang}.min.js";

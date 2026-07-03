@@ -15,7 +15,7 @@ let
         </div>
       '';
     in
-    lib.template.normalTemplate (
+    lib.normalTemplate (
       page:
       # required extra css
       ''
@@ -56,9 +56,9 @@ let
           <h4>Code</h4>
           ${templates.tag.codeblock {
             content =
-              (lib.template.escapeHTML "<h3>")
+              (lib.escapeHTML "<h3>")
               + ''''${templates.icon.bootstrap "picture"} ''${templates.icon.bootstrap "tag"}''
-              + (lib.template.escapeHTML "</h3>");
+              + (lib.escapeHTML "</h3>");
           }}
 
           ${pageHeader "Font Awesome icons"}
@@ -66,9 +66,9 @@ let
           <h4>Code</h4>
           ${templates.tag.codeblock {
             content =
-              (lib.template.escapeHTML "<h3>")
+              (lib.escapeHTML "<h3>")
               + ''''${templates.icon.font-awesome "linux"} ''${templates.icon.font-awesome "code"}''
-              + (lib.template.escapeHTML "</h3>");
+              + (lib.escapeHTML "</h3>");
           }}
 
           ${pageHeader "Breadcrumbs"}
@@ -145,7 +145,7 @@ let
 
           ${pageHeader "Labels"}
           <h3>
-            ${lib.template.mapTemplate
+            ${lib.mapTemplate
               (
                 t:
                 templates.bootstrap.label {
@@ -166,7 +166,7 @@ let
           <h4>Code</h4>
           ${templates.tag.codeblock {
             content = ''
-              lib.template.mapTemplate (t:
+              lib.mapTemplate (t:
                 templates.bootstrap.label { content = t; type = t; }
               ) [ "default" "primary" "success" "info" "warning" "danger" ]
             '';
@@ -183,7 +183,7 @@ let
           </ul>
           <h4>Code</h4>
           ${templates.tag.codeblock {
-            content = lib.template.escapeHTML ''
+            content = lib.escapeHTML ''
               <p>
                <a href="#">Inbox ''${templates.bootstrap.badge 42}</a>
               </p>
@@ -255,7 +255,7 @@ let
       + ''
           <h4>Code</h4>
           ${templates.tag.codeblock {
-            content = lib.template.escapeHTML ''
+            content = lib.escapeHTML ''
               templates.bootstrap.navbar.default {
                 inverted = true;
                 id = "example1";
@@ -311,7 +311,7 @@ let
           }}
           <h4>Code</h4>
           ${templates.tag.codeblock {
-            content = lib.template.escapeHTML ''
+            content = lib.escapeHTML ''
               ''${templates.bootstrap.alert { type = "success"; content = "<strong>Well done!</strong> You successfully read this important alert message."; } }
               ''${templates.bootstrap.alert { type = "info";    content = "<strong>Heads up!</strong> This alert needs your attention, but it's not super important."; } }
               ''${templates.bootstrap.alert { type = "warning"; content = "<strong>Heads up!</strong> This alert needs your attention, but it's not super important."; } }
@@ -393,7 +393,7 @@ let
           </div>
           <h4>Code</h4>
           ${templates.tag.codeblock {
-            content = lib.template.escapeHTML ''
+            content = lib.escapeHTML ''
               <div class="col-sm-4">
                 ''${templates.bootstrap.panel {
                   heading = '''<h3 class="panel-title">Panel title</h3>''';

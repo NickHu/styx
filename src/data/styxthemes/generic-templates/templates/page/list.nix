@@ -6,6 +6,6 @@ let
       lib,
       ...
     }:
-    lib.template.normalTemplate (page: "<li>${templates.tag.ilink { to = page; }}</li>");
+    lib.normalTemplate (page: "<li>${templates.tag.ilink { to = page; }}</li>");
 in
 template env

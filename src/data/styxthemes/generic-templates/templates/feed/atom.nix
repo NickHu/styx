@@ -13,7 +13,7 @@ let
         <title>${page.title or conf.theme.site.title}</title>
         ${optionalString (page ? subtitle) "<subtitle>${page.subtitle}</subtitle>"}
         <generator>Styx</generator>
-        <updated>${(lib.template.parseDate (head page.items).date).T}</updated>
+        <updated>${(lib.parseDate (head page.items).date).T}</updated>
         <id>${templates.url page}</id>
         <link href="${templates.url page}" rel="self" type="application/atom+xml"/>
         <link href="${templates.url "/"}" rel="alternate"/>
@@ -35,7 +35,7 @@ let
         }
         ${optionalString (page ? icon) "<icon>${page.icon}</icon>"}
         ${optionalString (page ? logo) "<logo>${page.logo}</logo>"}
-        ${lib.template.mapTemplate templates.feed.atom-list page.items}
+        ${lib.mapTemplate templates.feed.atom-list page.items}
       </feed>
     '';
 in

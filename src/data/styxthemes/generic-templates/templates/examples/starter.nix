@@ -7,7 +7,7 @@ let
       data,
       ...
     }:
-    lib.template.normalTemplate (
+    lib.normalTemplate (
       page:
       # required extra css
       ''

@@ -20,8 +20,8 @@ An example of such usage is a navbar declared as a list of page attributes sets.
 
 The styx data library provides functions to import external data:
 
-- link:library.html#lib.data.loadFile[loadFile]: load a single data file and return it as an attribute set
-- link:library.html#lib.data.loadDir[loadDir]: to load all the files in a directory and return them as a list of attributes sets (non-recursive)
+- link:library.html#lib.loadFile[loadFile]: load a single data file and return it as an attribute set
+- link:library.html#lib.loadDir[loadDir]: to load all the files in a directory and return them as a list of attributes sets (non-recursive)
 
 The data loading functions return a set per file loaded and do a few things:
 
@@ -135,7 +135,7 @@ draft: true
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean dapibus aliquet justo ac lacinia.
 ----
 
-Then the list of posts can be fetched with link:library.html#lib.template.loadDir[loadDir] by passing the `renderDrafts` parameter.
+Then the list of posts can be fetched with link:library.html#lib.loadDir[loadDir] by passing the `renderDrafts` parameter.
 
 [source, nix]
 .Fetching drafts
@@ -276,5 +276,5 @@ Phasellus consequat a nibh sit amet ultricies. Quisque feugiat justo eu condimen
 The resulting data set will have an extra `pages` field that will hold the list of subpages content in format `[ "..." "..." ... ]` in a `pages` attribute.
 
 NOTE: The data section is only responsible for generating the data attribute set. Transforming a data attribute set in a page attribute set is done in the pages section. +
-For example, link:library.html#lib.pages.mkPageList[mkPageList] can generate pages from a list of loaded data.
+For example, link:library.html#lib.mkPageList[mkPageList] can generate pages from a list of loaded data.
 

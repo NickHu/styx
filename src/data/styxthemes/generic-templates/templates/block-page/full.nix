@@ -3,4 +3,4 @@
   templates,
   ...
 }:
-lib.template.normalTemplate (page: lib.template.processBlocks page.blocks)
+lib.normalTemplate (page: lib.processBlocks page.blocks)

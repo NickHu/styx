@@ -1,5 +1,5 @@
 env:
 let
-  template = { lib, ... }: attrs: "<link ${lib.template.htmlAttrs attrs} />\n";
+  template = { lib, ... }: attrs: "<link ${lib.htmlAttrs attrs} />\n";
 in
 template env

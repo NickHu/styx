@@ -7,7 +7,7 @@ let
       ...
     }:
     with lib;
-    lib.template.normalTemplate (page: ''
+    lib.normalTemplate (page: ''
       <div>
       ${optionalString (page ? title) "<h1>${page.title}</h1>"}
       ${page.content}

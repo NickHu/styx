@@ -262,7 +262,7 @@ Highlights:
 * <<Debugging,Interactive debugging>> with `nix-repl.`
 * <<site.nix,Simpler and shorter>> `site.nix`
 * <<themes.library,Themes can provide function libraries>>.
-* <<lib.template.parseDate,Content timestamps support time>>.
+* <<lib.parseDate,Content timestamps support time>>.
 
 Breaking Changes:
 
@@ -270,7 +270,7 @@ Breaking Changes:
 ** `site.nix` was refactored
 ** Themes `theme.nix` was removed, its functionality is divided in two files, `conf.nix` and `meta.nix`. `conf.nix` for configuration interface and `meta.nix` for theme metadata.
 ** Themes `meta.nix` file **must** be present and **must** declare a `id` attribute specifying the theme id.
-** `lib.pages.setDefaultLayout` was removed (default pages values can be set with the `default` argument of <<lib.generation.pagesToList>>).
+** `lib.setDefaultLayout` was removed (default pages values can be set with the `default` argument of <<lib.pagesToList>>).
 ** all occurences of `href` in function names / parameters and template variables has been replaced with `path`, pages `path` attribute must start with a `/`.
 
 Upgrading:

@@ -14,10 +14,10 @@ let
     with lib;
     let
       dataWidth = optionalString (width != null) (
-        " " + lib.template.htmlAttr "data-width" (toString width)
+        " " + lib.htmlAttr "data-width" (toString width)
       );
       dataHeight = optionalString (height != null) (
-        " " + lib.template.htmlAttr "data-height" (toString height)
+        " " + lib.htmlAttr "data-height" (toString height)
       );
     in
     ''

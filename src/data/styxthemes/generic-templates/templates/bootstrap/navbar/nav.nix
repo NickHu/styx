@@ -28,7 +28,7 @@ let
     in
     ''
       <ul class="nav navbar-nav${extraClasses}">
-      ${lib.template.mapTemplate (
+      ${lib.mapTemplate (
         item:
         if isString item then item else templates.bootstrap.navbar.nav_item { inherit item currentPage; }
       ) items}

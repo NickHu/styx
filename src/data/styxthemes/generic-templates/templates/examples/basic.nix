@@ -7,7 +7,7 @@ let
       data,
       ...
     }:
-    lib.template.normalTemplate (
+    lib.normalTemplate (
       page:
       templates.bootstrap.navbar.default {
         inverted = true;

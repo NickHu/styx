@@ -23,5 +23,5 @@ repository for other official themes.
 
 :sectnums:
 
-include::styx-themes-generated.adoc[]
+include::styx-themes-reference.adoc[]
 

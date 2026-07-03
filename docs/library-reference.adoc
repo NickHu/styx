@@ -1,34 +1,34 @@
 = Styx library reference
 
-== lib.data
+== Data
 
 === loadFile
 
-`lib.data.loadFile { file, env ? {}, ... }` loads a single markdown, AsciiDoc, or `.nix` data file.
+`loadFile { file, env ? {}, ... }` loads a single markdown, AsciiDoc, or `.nix` data file.
 
 === loadDir
 
-`lib.data.loadDir { dir, env ? {}, asAttrs ? false, filterDraftsFn ? ..., ... }` loads every supported file in a directory. Draft posts are omitted unless `conf.renderDrafts` is true.
+`loadDir { dir, env ? {}, asAttrs ? false, filterDraftsFn ? ..., ... }` loads every supported file in a directory. Draft posts are omitted unless `conf.renderDrafts` is true.
 
 === markdownToHtml / asciidocToHtml
 
 Convert markup strings to HTML using the built-in pandoc/asciidoctor commands.
 
-== lib.pages
+== Pages
 
 === mkPageList
 
-`lib.pages.mkPageList { data, template, pathPrefix ? "", pageFn ? ..., ... }` builds one page per data entry. Returns `{ list, pages, _type = "pages"; ... }`.
+`mkPageList { data, template, pathPrefix ? "", pageFn ? ..., ... }` builds one page per data entry. Returns `{ list, pages, _type = "pages"; ... }`.
 
 === mkSplit
 
-`lib.pages.mkSplit { basePath, itemsPerPage, data, ... }` splits a list into paginated archive pages. Each page gets `path`, `items`, `index`, and `pages`.
+`mkSplit { basePath, itemsPerPage, data, ... }` splits a list into paginated archive pages. Each page gets `path`, `items`, `index`, and `pages`.
 
 === mkPages
 
 Low-level helper used by `mkPageList`. Marks an attribute set with `_type = "pages"`.
 
-== lib.generation
+== Site generation
 
 === mkSitePackage
 
@@ -36,7 +36,7 @@ Recommended site entry point. Loads themes, evaluates `data`/`pages`, and return
 
 [source,nix]
 ----
-styxlib.generation.mkSitePackage {
+styxlib.mkSitePackage {
   inherit styxlib;
   themes = [ styxthemes.generic-templates ];
   config = [ ./conf.nix extraConf ];
@@ -54,17 +54,21 @@ styxlib.generation.mkSitePackage {
 }
 ----
 
-`body` receives the loaded theme context (`templates`, `conf`, `lib`, `files`, …) and returns `{ data, pages, mkSiteArgs ? {} }`.
+`body` receives the loaded theme context and returns `{ data, pages, pagesDefault ? {}, mkSiteArgs ? {} }`.
 
 === mkSite
 
-`lib.generation.mkSite { files ? [], pageList ? [], substitutions ? {}, meta ? {}, ... }` runs the shell script that writes HTML and copies static files.
+`mkSite { files ? [], pageList ? [], substitutions ? {}, meta ? {}, ... }` runs the shell script that writes HTML and copies static files.
 
 === pagesToList
 
-`lib.generation.pagesToList { pages, default ? {} }` flattens the `pages` attribute set into a list, expanding `_type = "pages"` groups and applying optional defaults.
+`pagesToList { pages, default ? {} }` flattens the `pages` attribute set into a list, expanding `_type = "pages"` groups and applying optional defaults.
 
-== lib.template
+=== generatePage
+
+`generatePage page` evaluates `page.layout (page.template page)`.
+
+== Templates
 
 === normalTemplate
 
@@ -86,38 +90,32 @@ Parse `YYYY-MM-DD` (optional time) strings into formatted fields for feeds and t
 
 Merge block-page content and collect `extraJS` / `extraCSS`.
 
-== lib.themes.load
+== Themes
+
+=== themes.load
 
 `styxlib.themes.load { lib, themes ? [], config ? [], env ? {} }` merges theme modules with site config via `lib.evalModules`, loads templates, and returns `{ conf, files, templates, lib, env, themes }`.
 
 Theme `conf.nix` files declare `options.*`; site config sets `config.*`.
 
-== lib.utils
+== Utilities
 
 === find
 
-`lib.utils.find criteria list` returns the first list element matching an attribute subset.
+`find criteria list` returns the first list element matching an attribute subset.
 
 === sortBy
 
-`lib.utils.sortBy "date" "dsc"` sorts a list of attribute sets.
+`sortBy "date" "dsc"` sorts a list of attribute sets.
 
-=== importApply
+== Flake apps
 
-Import a path and apply it if the result is a function (used internally for theme modules and `.nix` data files).
-
-=== setToList / prettyNix
-
-`setToList` flattens nested attribute sets to dot-path keys (used by `mkSite` substitutions). `prettyNix` formats Nix values in error messages.
-
-== lib.apps
-
-Optional flake app helpers for sites:
+Optional helpers for sites:
 
 * `lib.apps.mkServe { site, host ? "127.0.0.1", port ? 8080 }`
 * `lib.apps.mkServeWithLinkCheck { site, ... }`
 * `lib.apps.mkGhPagesDeploy { site, remote ? "origin", branch ? "gh-pages" }`
 
-== Top-level re-exports
+== Module imports
 
-Nixpkgs helpers (`optionalString`, `recursiveUpdate`, `mapAttrs`, …) are merged into `styxlib` alongside the namespaced modules above.
+Theme and site modules loaded from paths use `lib.modules.importApply` (available on `styxlib` through the merged nixpkgs lib).

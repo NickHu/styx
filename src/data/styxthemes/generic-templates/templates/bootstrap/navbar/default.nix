@@ -17,7 +17,7 @@ let
     }@args:
     let
       baseClass = if inverted then "navbar-inverse" else "navbar-default";
-      class = lib.template.htmlAttr "class" (
+      class = lib.htmlAttr "class" (
         [
           "navbar"
           baseClass

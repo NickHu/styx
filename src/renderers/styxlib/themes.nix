@@ -1,5 +1,5 @@
 # Theme loading and configuration (nixpkgs lib.evalModules).
-lib: nixpkgs: { utils }:
+lib: nixpkgs: { utils, importApply }:
 with lib;
 with utils;
 let
@@ -33,7 +33,7 @@ let
         if isPath config then
           importApply config args
         else if isFunction config then
-          importApply config args
+          config args
         else
           config;
       isModule =

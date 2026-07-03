@@ -1,28 +1,28 @@
 == Site Generation
 
-Most sites use link:library.html#lib.generation.mkSitePackage[`mkSitePackage`], which loads themes, builds `pageList`, and calls `mkSite`.
+Most sites use link:library.html#lib.mkSitePackage[`mkSitePackage`], which loads themes, builds `pageList`, and calls `mkSite`.
 
-For manual control, prepare a `pageList` and call link:library.html#lib.generation.mkSite[`mkSite`] directly.
+For manual control, prepare a `pageList` and call link:library.html#lib.mkSite[`mkSite`] directly.
 
 [source, nix]
 .Standard call to mkSite
 ----
-pageList = lib.generation.pagesToList { inherit pages; }; # <1>
+pageList = lib.pagesToList { inherit pages; }; # <1>
 
-site = lib.generation.mkSite { inherit files pageList; } # <2>
+site = lib.mkSite { inherit files pageList; } # <2>
 ----
 
 <1> Convert the pages attribute set to a list of pages.
 <2> Generate the site.
 
-It is possible to set default attributes to every page set during the `pages` attribute by using the `default` argument of the link:library.html#lib.generation.pagesToList[pagesToList] function.
+It is possible to set default attributes to every page set during the `pages` attribute by using the `default` argument of the link:library.html#lib.pagesToList[pagesToList] function.
 
 A typical example is setting a default layout to every page set that do not declares one.
 
 [source, nix]
 .Setting a default layout to every page set
 ----
-pageList = lib.generation.pagesToList {
+pageList = lib.pagesToList {
   inherit pages;
   default.layout = templates.layout;
 };

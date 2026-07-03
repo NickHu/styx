@@ -14,7 +14,7 @@ this function; the site template provides that wiring.
 .Hello world!
 ----
 { pkgs, styxlib, styxthemes ? {}, extraConf ? {} }:
-styxlib.generation.mkSitePackage { # <1>
+styxlib.mkSitePackage { # <1>
   inherit styxlib;
   themes = [ styxthemes.generic-templates ]; # <2>
   config = [ ./conf.nix extraConf ];
@@ -131,12 +131,12 @@ This section is the basic setup of styx, it should not be changed and used as is
 [[site.nix-themes]]
 ==== Themes and site output
 
-Most sites use link:library.html#lib.generation.mkSitePackage[`mkSitePackage`], which loads themes, merges configuration, builds `pageList`, and calls `mkSite`.
+Most sites use link:library.html#lib.mkSitePackage[`mkSitePackage`], which loads themes, merges configuration, builds `pageList`, and calls `mkSite`.
 
 [source, nix]
 .Standard site.nix with mkSitePackage
 ----
-styxlib.generation.mkSitePackage {
+styxlib.mkSitePackage {
   inherit styxlib;
   config = [ ./conf.nix extraConf ];
   themes = [ styxthemes.generic-templates ./themes/my-theme ];
@@ -171,7 +171,7 @@ The <<Data>> section explains in detail how to manage data.
 -----------------------------------------------------------------------------*/
 
   data = {
-    about = lib.data.loadFile { file = ./pages/about.md; inherit env; }; # <1>
+    about = lib.loadFile { file = ./pages/about.md; inherit env; }; # <1>
   };
 ----
 
@@ -219,8 +219,8 @@ IMPORTANT: `path` must start with a `/`.
 [source, nix]
 .Manual mkSite wiring (advanced)
 ----
-pageList = lib.generation.pagesToList { inherit pages; };
-site = lib.generation.mkSite { inherit files pageList; };
+pageList = lib.pagesToList { inherit pages; };
+site = lib.mkSite { inherit files pageList; };
 ----
 
 `pagesToList` converts the pages attribute set to a flat list (expanding page groups from `mkPageList`).

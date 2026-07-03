@@ -18,6 +18,6 @@ let
     }:
     { page }:
     with lib;
-    optionalString (page ? extraCSS) (lib.template.mapTemplate templates.tag.link-css page.extraCSS);
+    optionalString (page ? extraCSS) (lib.mapTemplate templates.tag.link-css page.extraCSS);
 in
 template env

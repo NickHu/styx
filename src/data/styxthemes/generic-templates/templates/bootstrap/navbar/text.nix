@@ -11,7 +11,7 @@ let
     }:
     let
       alignClass = optional (align == "right" || align == "left") "navbar-${align}";
-      class = lib.template.htmlAttr "class" ([ "navbar-text" ] ++ alignClass ++ extraClasses);
+      class = lib.htmlAttr "class" ([ "navbar-text" ] ++ alignClass ++ extraClasses);
     in
     ''
       <p ${class}>${content}</p>

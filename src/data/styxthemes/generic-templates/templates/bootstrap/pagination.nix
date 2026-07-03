@@ -33,8 +33,8 @@ let
     optionalString ((length pages) > 1) ''
       <nav aria-label="Page navigation" class="pagination">
       <ul class="pagination">
-      <li${optionalString (index == 1) " ${lib.template.htmlAttr "class" "disabled"}"}>
-      <a ${lib.template.htmlAttr "href" prevHref} aria-label="Previous">
+      <li${optionalString (index == 1) " ${lib.htmlAttr "class" "disabled"}"}>
+      <a ${lib.htmlAttr "href" prevHref} aria-label="Previous">
       <span aria-hidden="true">&laquo;</span>
       </a>
       </li>
@@ -44,7 +44,7 @@ let
           let
             i' = i + offset;
           in
-          "<li${optionalString (i' == index) " ${lib.template.htmlAttr "class" "active"}"}>${
+          "<li${optionalString (i' == index) " ${lib.htmlAttr "class" "active"}"}>${
             templates.tag.ilink {
               to = page;
               content = toString i';
@@ -52,8 +52,8 @@ let
           }</li>"
         ) pages'
       )}
-      <li${optionalString (index == (length pages)) " ${lib.template.htmlAttr "class" "disabled"}"}>
-      <a ${lib.template.htmlAttr "href" nextHref} aria-label="Next">
+      <li${optionalString (index == (length pages)) " ${lib.htmlAttr "class" "disabled"}"}>
+      <a ${lib.htmlAttr "href" nextHref} aria-label="Next">
       <span aria-hidden="true">&raquo;</span>
       </a>
       </li>

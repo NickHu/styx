@@ -12,11 +12,11 @@ let
       id = optionalString (hasAttrByPath [
         "body"
         "id"
-      ] page) " ${lib.template.htmlAttr "id" page.body.id}";
+      ] page) " ${lib.htmlAttr "id" page.body.id}";
       class = optionalString (hasAttrByPath [
         "body"
         "class"
-      ] page) " ${lib.template.htmlAttr "class" page.body.class}";
+      ] page) " ${lib.htmlAttr "class" page.body.class}";
     in
     ''
       <body${id}${class}>

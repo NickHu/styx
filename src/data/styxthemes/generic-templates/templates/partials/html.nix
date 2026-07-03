@@ -15,7 +15,7 @@ let
         html.lang or (if hasAttrByPath [ "html" "lang" ] conf.theme then conf.theme.html.lang else "en");
     in
     ''
-      <html ${lib.template.htmlAttr "lang" lang}>
+      <html ${lib.htmlAttr "lang" lang}>
         ${(templates.partials.head.default args) + (templates.partials.body args)}</html>'';
 in
 template env

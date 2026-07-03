@@ -3,12 +3,12 @@
 
 The library contains functions used in `site.nix` and theme templates.
 
-Styx APIs live under namespaced modules (`lib.data`, `lib.pages`, `lib.generation`,
-`lib.template`, `lib.themes`, `lib.utils`, `lib.apps`). Nixpkgs helpers are also
-available at the top level (`lib.optionalString`, `lib.recursiveUpdate`, and so on).
+Styx APIs are available at the top level of `styxlib` (`lib.loadFile`, `lib.mkSitePackage`, …).
+Nixpkgs helpers are merged in as well (`lib.optionalString`, `lib.recursiveUpdate`, …).
+Themes use `lib.themes.load`; flake apps use `lib.apps.*`.
 
 For a narrative introduction, see link:./index.html[Styx documentation].
 
 :sectnums:
 
-include::library-generated.adoc[]
+include::library-reference.adoc[]

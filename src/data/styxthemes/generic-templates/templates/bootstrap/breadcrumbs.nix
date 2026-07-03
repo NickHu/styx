@@ -11,7 +11,7 @@ let
     with lib;
     optionalString (page ? breadcrumbs) ''
       <ol class="breadcrumb">
-      ${lib.template.mapTemplate (
+      ${lib.mapTemplate (
         p:
         "  <li>${
             templates.tag.ilink {
